@@ -12,7 +12,6 @@ export interface Query {
 
 export interface DataAdapter {
   find<T extends Entity>(collection: string, query: Query): Promise<T[]>;
-  findOne<T extends Entity>(collection: string, id: string | number): Promise<T | null>;
   create<T extends Entity>(collection: string, data: T): Promise<T>;
   update<T extends Entity>(collection: string, id: string | number, data: Partial<T>): Promise<T>;
   delete(collection: string, id: string | number): Promise<void>;

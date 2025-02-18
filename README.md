@@ -38,10 +38,8 @@ await userStore.create({
 });
 
 // 查询用户
-const users = await userStore.find({
-  where: { age: 30 },
-  sort: [['name', 'asc']],
-  limit: 10
+const users = await store.find({
+  where: { id: 1 }
 });
 
 // 更新用户
@@ -57,7 +55,6 @@ await userStore.delete(1);
 
 - `constructor(adapter: DataAdapter, collection: string)`
 - `find(query?: Query): Promise<T[]>`
-- `findOne(id: string | number): Promise<T | null>`
 - `create(data: T): Promise<T>`
 - `update(id: string | number, data: Partial<T>): Promise<T>`
 - `delete(id: string | number): Promise<void>`

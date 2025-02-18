@@ -13,10 +13,6 @@ export class DataStore<T extends Entity> {
     return this.adapter.find<T>(this.collection, query);
   }
 
-  async findOne(id: string | number): Promise<T | null> {
-    return this.adapter.findOne<T>(this.collection, id);
-  }
-
   async create(data: T): Promise<T> {
     return this.adapter.create<T>(this.collection, data);
   }

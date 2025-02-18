@@ -28,12 +28,6 @@ describe('DataStore', () => {
     expect(created).toEqual(testUser);
   });
 
-  it('should find an entity by id', async () => {
-    await store.create(testUser);
-    const found = await store.findOne(1);
-    expect(found).toEqual(testUser);
-  });
-
   it('should update an entity', async () => {
     await store.create(testUser);
     const updated = await store.update(1, { age: 31 });
@@ -43,8 +37,8 @@ describe('DataStore', () => {
   it('should delete an entity', async () => {
     await store.create(testUser);
     await store.delete(1);
-    const found = await store.findOne(1);
-    expect(found).toBeNull();
+    const results = await store.find({ where: { id: 1 } });
+    expect(results).toHaveLength(0);
   });
 
   it('should find entities with query', async () => {

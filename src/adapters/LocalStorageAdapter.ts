@@ -58,11 +58,6 @@ export class LocalStorageAdapter implements DataAdapter {
     return this.filterEntities(entities, query);
   }
 
-  async findOne<T extends Entity>(collection: string, id: string | number): Promise<T | null> {
-    const entity = this.getCollection<T>(collection).get(id);
-    return entity || null;
-  }
-
   async create<T extends Entity>(collection: string, data: T): Promise<T> {
     if (!data.id) {
       throw new Error('Entity must have an id');

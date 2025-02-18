@@ -51,11 +51,6 @@ export class MapAdapter implements DataAdapter {
     return this.filterEntities(entities, query);
   }
 
-  async findOne<T extends Entity>(collection: string, id: string | number): Promise<T | null> {
-    const entity = this.getCollection(collection).get(id) as T;
-    return entity || null;
-  }
-
   async create<T extends Entity>(collection: string, data: T): Promise<T> {
     if (!data.id) {
       throw new Error('Entity must have an id');
@@ -65,12 +60,13 @@ export class MapAdapter implements DataAdapter {
   }
 
   async update<T extends Entity>(collection: string, id: string | number, data: Partial<T>): Promise<T> {
-    const existing = await this.findOne<T>(collection, id);
+    const entities = this.getCollection(collection);
+    const existing = entities.get(id) as T;
     if (!existing) {
       throw new Error('Entity not found');
     }
     const updated = { ...existing, ...data };
-    this.getCollection(collection).set(id, updated);
+    entities.set(id, updated);
     return updated;
   }
 
