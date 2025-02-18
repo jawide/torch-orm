@@ -16,8 +16,7 @@
     "test:watch": "jest --watch",
     "clean": "rimraf dist coverage",
     "prepublishOnly": "pnpm test && pnpm build",
-    "publish": "pnpm publish",
-    "example:map": "node --loader ts-node/esm examples/map-adapter.ts"
+    "publish": "pnpm publish"
   },
   "keywords": [
     "orm",
