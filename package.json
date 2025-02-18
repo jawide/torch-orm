@@ -1,15 +1,20 @@
 {
-  "name": "torch-orm",
+  "name": "@torch-orm/core",
   "version": "1.0.0",
-  "description": "A lightweight ORM library for browser and Node.js",
+  "description": "A lightweight ORM library for browser and Node.js with adapter pattern",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prepublish": "pnpm run build",
+    "prepublishOnly": "pnpm test && pnpm build",
     "example:map": "node --loader ts-node/esm examples/map-adapter.ts"
   },
   "keywords": [
@@ -17,10 +22,21 @@
     "database",
     "typescript",
     "browser",
-    "nodejs"
+    "nodejs",
+    "adapter",
+    "localstorage",
+    "map"
   ],
-  "author": "",
+  "author": "jawide",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jawide/torch-orm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jawide/torch-orm/issues"
+  },
+  "homepage": "https://github.com/jawide/torch-orm#readme",
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.19",
@@ -28,5 +44,8 @@
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
