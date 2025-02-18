@@ -14,7 +14,7 @@ global.localStorage = new LocalStorage(TEST_STORAGE_PATH);
 
 runAdapterTests(
   'LocalStorageDataAdapter',
-  () => new LocalStorageDataAdapter('test:'),
+  () => new LocalStorageDataAdapter(),
   () => {
     if (!fs.existsSync(TEST_STORAGE_PATH)) {
       fs.mkdirSync(TEST_STORAGE_PATH, { recursive: true });

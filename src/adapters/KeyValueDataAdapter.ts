@@ -3,6 +3,8 @@ import { Entity } from '../Entity';
 import { Query } from '../Query';
 
 export abstract class KeyValueDataAdapter implements DataAdapter {
+  public idAttribute: string = 'id';
+
   protected abstract getCollection<T extends Entity>(collection: string): Map<string | number, T>;
   protected abstract saveCollection<T extends Entity>(collection: string, data: Map<string | number, T>): void;
 
@@ -42,11 +44,12 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   }
 
   async create<T extends Entity>(collection: string, data: T): Promise<T> {
-    if (!data.id) {
-      throw new Error('Entity must have an id');
+    const id = data[this.idAttribute];
+    if (!id) {
+      throw new Error(`Entity must have an ${this.idAttribute}`);
     }
     const entities = this.getCollection<T>(collection);
-    entities.set(String(data.id), data);
+    entities.set(String(id), data);
     this.saveCollection(collection, entities);
     return data;
   }
