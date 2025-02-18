@@ -1,0 +1,29 @@
+{
+  "name": "torch-orm",
+  "version": "1.0.0",
+  "description": "A lightweight ORM library for browser and Node.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "prepublish": "pnpm run build"
+  },
+  "keywords": [
+    "orm",
+    "database",
+    "typescript",
+    "browser",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.11.19",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3"
+  }
+}
