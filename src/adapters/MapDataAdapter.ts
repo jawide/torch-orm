@@ -1,6 +1,6 @@
 import { DataAdapter, Entity, Query } from '../types';
 
-export class MapAdapter implements DataAdapter {
+export class MapDataAdapter implements DataAdapter {
   private storage: Map<string, Map<string | number, Entity>>;
 
   constructor() {
@@ -55,23 +55,26 @@ export class MapAdapter implements DataAdapter {
     if (!data.id) {
       throw new Error('Entity must have an id');
     }
-    this.getCollection(collection).set(data.id, data);
+    const id = String(data.id);
+    this.getCollection(collection).set(id, data);
     return data;
   }
 
   async update<T extends Entity>(collection: string, id: string | number, data: Partial<T>): Promise<T> {
     const entities = this.getCollection(collection);
-    const existing = entities.get(id) as T;
+    const strId = String(id);
+    const existing = entities.get(strId) as T;
     if (!existing) {
       throw new Error('Entity not found');
     }
     const updated = { ...existing, ...data };
-    entities.set(id, updated);
+    entities.set(strId, updated);
     return updated;
   }
 
   async delete(collection: string, id: string | number): Promise<void> {
-    this.getCollection(collection).delete(id);
+    const entities = this.getCollection(collection);
+    entities.delete(String(id));
   }
 
   async clear(collection: string): Promise<void> {

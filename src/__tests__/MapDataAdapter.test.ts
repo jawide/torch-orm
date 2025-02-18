@@ -1,30 +1,5 @@
-import { LocalStorageAdapter } from '../adapters/LocalStorageAdapter';
+import { MapDataAdapter } from '../adapters/MapDataAdapter';
 import { Entity } from '../types';
-
-class LocalStorageMock {
-  private store: { [key: string]: string } = {};
-
-  clear() {
-    this.store = {};
-  }
-
-  getItem(key: string) {
-    return this.store[key] || null;
-  }
-
-  setItem(key: string, value: string) {
-    this.store[key] = value;
-  }
-
-  removeItem(key: string) {
-    delete this.store[key];
-  }
-}
-
-Object.defineProperty(global, 'localStorage', {
-  value: new LocalStorageMock(),
-  writable: true
-});
 
 interface User extends Entity {
   id: number;
@@ -32,12 +7,11 @@ interface User extends Entity {
   age: number;
 }
 
-describe('LocalStorageAdapter', () => {
-  let adapter: LocalStorageAdapter;
+describe('MapDataAdapter', () => {
+  let adapter: MapDataAdapter;
 
   beforeEach(() => {
-    localStorage.clear();
-    adapter = new LocalStorageAdapter('test:');
+    adapter = new MapDataAdapter();
   });
 
   const testUser: User = {
@@ -55,13 +29,6 @@ describe('LocalStorageAdapter', () => {
     it('should throw error when creating entity without id', async () => {
       const invalidUser = { name: 'John Doe', age: 30 } as User;
       await expect(adapter.create('users', invalidUser)).rejects.toThrow('Entity must have an id');
-    });
-
-    it('should persist data in localStorage', async () => {
-      await adapter.create('users', testUser);
-      const stored = localStorage.getItem('test:users');
-      expect(stored).toBeDefined();
-      expect(JSON.parse(stored!)[1]).toEqual(testUser);
     });
   });
 
@@ -126,13 +93,6 @@ describe('LocalStorageAdapter', () => {
     it('should throw error when updating non-existent entity', async () => {
       await expect(adapter.update('users', 999, { age: 31 })).rejects.toThrow('Entity not found');
     });
-
-    it('should persist updated data in localStorage', async () => {
-      await adapter.update('users', 1, { age: 31 });
-      const stored = localStorage.getItem('test:users');
-      expect(stored).toBeDefined();
-      expect(JSON.parse(stored!)[1]).toEqual({ ...testUser, age: 31 });
-    });
   });
 
   describe('delete', () => {
@@ -148,12 +108,6 @@ describe('LocalStorageAdapter', () => {
 
     it('should not throw when deleting non-existent entity', async () => {
       await expect(adapter.delete('users', 999)).resolves.not.toThrow();
-    });
-
-    it('should persist deletion in localStorage', async () => {
-      await adapter.delete('users', 1);
-      const stored = localStorage.getItem('test:users');
-      expect(stored).toBeNull();
     });
   });
 
@@ -176,11 +130,6 @@ describe('LocalStorageAdapter', () => {
       const posts = await adapter.find('posts', {});
       expect(users).toHaveLength(0);
       expect(posts).toHaveLength(1);
-    });
-
-    it('should remove collection key from localStorage', async () => {
-      await adapter.clear('users');
-      expect(localStorage.getItem('test:users')).toBeNull();
     });
   });
 }); 

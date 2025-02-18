@@ -1,6 +1,6 @@
 import { DataAdapter, Entity, Query } from '../types';
 
-export class LocalStorageAdapter implements DataAdapter {
+export class LocalStorageDataAdapter implements DataAdapter {
   private prefix: string;
 
   constructor(prefix: string = 'torch-orm:') {

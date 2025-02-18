@@ -1,4 +1,4 @@
-import { DataStore, MapAdapter } from '../src';
+import { DataStore, MapDataAdapter } from '../src';
 
 interface Todo {
   id: number;
@@ -9,7 +9,7 @@ interface Todo {
 
 async function main() {
   // 创建适配器和数据存储实例
-  const adapter = new MapAdapter();
+  const adapter = new MapDataAdapter();
   const todoStore = new DataStore<Todo>(adapter, 'todos');
 
   // 创建一些待办事项

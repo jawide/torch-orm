@@ -1,5 +1,5 @@
 import { DataStore } from '../DataStore';
-import { MapAdapter } from '../adapters/MapAdapter';
+import { MapDataAdapter } from '../adapters/MapDataAdapter';
 import { Entity } from '../types';
 
 interface User extends Entity {
@@ -10,10 +10,10 @@ interface User extends Entity {
 
 describe('DataStore', () => {
   let store: DataStore<User>;
-  let adapter: MapAdapter;
+  let adapter: MapDataAdapter;
 
   beforeEach(() => {
-    adapter = new MapAdapter();
+    adapter = new MapDataAdapter();
     store = new DataStore<User>(adapter, 'users');
   });
 
