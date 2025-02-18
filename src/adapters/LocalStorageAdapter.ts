@@ -13,14 +13,26 @@ export class LocalStorageAdapter implements DataAdapter {
 
   private getCollection<T extends Entity>(collection: string): Map<string | number, T> {
     const data = localStorage.getItem(this.getCollectionKey(collection));
-    return data ? new Map(Object.entries(JSON.parse(data))) : new Map();
+    if (!data) {
+      return new Map();
+    }
+    try {
+      const parsed = JSON.parse(data);
+      return new Map(Object.entries(parsed));
+    } catch {
+      return new Map();
+    }
   }
 
   private saveCollection<T extends Entity>(collection: string, data: Map<string | number, T>): void {
-    localStorage.setItem(
-      this.getCollectionKey(collection),
-      JSON.stringify(Object.fromEntries(data))
-    );
+    if (data.size === 0) {
+      localStorage.removeItem(this.getCollectionKey(collection));
+    } else {
+      localStorage.setItem(
+        this.getCollectionKey(collection),
+        JSON.stringify(Object.fromEntries(data))
+      );
+    }
   }
 
   private filterEntities<T extends Entity>(entities: T[], query: Query): T[] {
@@ -70,19 +82,19 @@ export class LocalStorageAdapter implements DataAdapter {
 
   async update<T extends Entity>(collection: string, id: string | number, data: Partial<T>): Promise<T> {
     const entities = this.getCollection<T>(collection);
-    const existing = entities.get(id);
+    const existing = entities.get(String(id));
     if (!existing) {
       throw new Error('Entity not found');
     }
     const updated = { ...existing, ...data };
-    entities.set(id, updated);
+    entities.set(String(id), updated);
     this.saveCollection(collection, entities);
     return updated;
   }
 
   async delete(collection: string, id: string | number): Promise<void> {
     const entities = this.getCollection(collection);
-    entities.delete(id);
+    entities.delete(String(id));
     this.saveCollection(collection, entities);
   }
 
