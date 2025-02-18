@@ -1,7 +1,6 @@
 import { DataAdapter } from '../../DataAdapter';
-import { Entity } from '../../Entity';
 
-export interface TestUser extends Entity {
+export interface TestUser {
   id: number;
   name: string;
   age: number;

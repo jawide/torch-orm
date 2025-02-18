@@ -1,5 +1,4 @@
 import { DataAdapter } from './DataAdapter';
-import { Entity } from './Entity';
 import { Query } from './Query';
 
 export interface DataStoreOptions {
@@ -7,7 +6,7 @@ export interface DataStoreOptions {
   idAttribute?: string;
 }
 
-export class DataStore<T extends Entity> {
+export class DataStore<T extends Record<string, any>> {
   private adapter: DataAdapter;
   private collection: string;
 

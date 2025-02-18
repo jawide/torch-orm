@@ -1,14 +1,13 @@
 import { DataAdapter } from '../DataAdapter';
-import { Entity } from '../Entity';
 import { Query } from '../Query';
 
 export abstract class KeyValueDataAdapter implements DataAdapter {
   public idAttribute: string = 'id';
 
-  protected abstract getCollection<T extends Entity>(collection: string): Map<string | number, T>;
-  protected abstract saveCollection<T extends Entity>(collection: string, data: Map<string | number, T>): void;
+  protected abstract getCollection<T extends Record<string, any>>(collection: string): Map<string | number, T>;
+  protected abstract saveCollection<T extends Record<string, any>>(collection: string, data: Map<string | number, T>): void;
 
-  private filterEntities<T extends Entity>(entities: T[], query: Query): T[] {
+  private filterEntities<T extends Record<string, any>>(entities: T[], query: Query): T[] {
     let result = entities;
 
     if (query.where) {
@@ -38,12 +37,12 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
     return result;
   }
 
-  async find<T extends Entity>(collection: string, query: Query): Promise<T[]> {
+  async find<T extends Record<string, any>>(collection: string, query: Query): Promise<T[]> {
     const entities = Array.from(this.getCollection<T>(collection).values());
     return this.filterEntities(entities, query);
   }
 
-  async create<T extends Entity>(collection: string, data: T): Promise<T> {
+  async create<T extends Record<string, any>>(collection: string, data: T): Promise<T> {
     const id = data[this.idAttribute];
     if (!id) {
       throw new Error(`Entity must have an ${this.idAttribute}`);
@@ -54,7 +53,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
     return data;
   }
 
-  async update<T extends Entity>(collection: string, id: string | number, data: Partial<T>): Promise<T> {
+  async update<T extends Record<string, any>>(collection: string, id: string | number, data: Partial<T>): Promise<T> {
     const entities = this.getCollection<T>(collection);
     const strId = String(id);
     const existing = entities.get(strId);
