@@ -13,13 +13,13 @@
 ## 安装
 
 ```bash
-pnpm add torch-orm
+pnpm add @torch-orm/core
 ```
 
 ## 使用示例
 
 ```typescript
-import { DataStore, MapAdapter } from 'torch-orm';
+import { DataStore, MapDataAdapter } from "@torch-orm/core";
 
 interface User {
   id: number;
@@ -27,18 +27,22 @@ interface User {
   age: number;
 }
 
-const adapter = new MapAdapter();
-const userStore = new DataStore<User>(adapter, 'users');
+// 创建适配器和数据存储实例
+const adapter = new MapDataAdapter();
+const userStore = new DataStore<User>("users", {
+  adapter,
+  idAttribute: "id" // 可选，默认为 "id"
+});
 
 // 创建用户
 await userStore.create({
   id: 1,
-  name: 'John Doe',
+  name: "John Doe",
   age: 30
 });
 
 // 查询用户
-const users = await store.find({
+const users = await userStore.find({
   where: { id: 1 }
 });
 
@@ -53,7 +57,11 @@ await userStore.delete(1);
 
 ### DataStore
 
-- `constructor(adapter: DataAdapter, collection: string)`
+- `constructor(collection: string, options: DataStoreOptions)`
+  - `collection`: 集合名称
+  - `options.adapter`: 数据适配器实例
+  - `options.idAttribute`: 自定义 ID 字段名称（可选，默认为 "id"）
+
 - `find(query?: Query): Promise<T[]>`
 - `create(data: T): Promise<T>`
 - `update(id: string | number, data: Partial<T>): Promise<T>`
@@ -67,19 +75,41 @@ interface Query {
   where?: Record<string, any>;
   limit?: number;
   offset?: number;
-  sort?: Array<[string, 'asc' | 'desc']>;
+  sort?: Array<[string, "asc" | "desc"]>;
 }
 ```
 
 ## 适配器
 
-### MapAdapter
+### MapDataAdapter
 
 使用 JavaScript Map 作为存储后端的内存适配器。
 
-### LocalStorageAdapter
+```typescript
+interface MapDataAdapterOptions {
+  initialData?: Map<string, Map<string | number, Entity>>;
+}
+
+const adapter = new MapDataAdapter({
+  initialData: new Map() // 可选，初始数据
+});
+```
+
+### LocalStorageDataAdapter
 
 使用浏览器 LocalStorage 作为存储后端的适配器。
+
+```typescript
+interface LocalStorageDataAdapterOptions {
+  prefix?: string;    // 可选，键前缀，默认为 "torch-orm:"
+  storage?: Storage;  // 可选，存储实现，默认为 localStorage
+}
+
+const adapter = new LocalStorageDataAdapter({
+  prefix: "app:",
+  storage: sessionStorage // 可选，使用其他存储实现
+});
+```
 
 ## 开发
 
