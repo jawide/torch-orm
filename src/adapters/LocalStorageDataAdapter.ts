@@ -1,19 +1,12 @@
 import { Entity } from '../Entity';
 import { KeyValueDataAdapter } from './KeyValueDataAdapter';
 
-export interface LocalStorageDataAdapterOptions {
-  prefix?: string;
-  storage?: Storage;
-}
-
 export class LocalStorageDataAdapter extends KeyValueDataAdapter {
   private prefix: string;
-  private storage: Storage;
 
-  constructor(options: LocalStorageDataAdapterOptions = {}) {
+  constructor(prefix: string = 'torch-orm:') {
     super();
-    this.prefix = options.prefix || 'torch-orm:';
-    this.storage = options.storage || localStorage;
+    this.prefix = prefix;
   }
 
   private getCollectionKey(collection: string): string {
@@ -21,7 +14,7 @@ export class LocalStorageDataAdapter extends KeyValueDataAdapter {
   }
 
   protected getCollection<T extends Entity>(collection: string): Map<string | number, T> {
-    const data = this.storage.getItem(this.getCollectionKey(collection));
+    const data = localStorage.getItem(this.getCollectionKey(collection));
     if (!data) {
       return new Map();
     }
@@ -35,9 +28,9 @@ export class LocalStorageDataAdapter extends KeyValueDataAdapter {
 
   protected saveCollection<T extends Entity>(collection: string, data: Map<string | number, T>): void {
     if (data.size === 0) {
-      this.storage.removeItem(this.getCollectionKey(collection));
+      localStorage.removeItem(this.getCollectionKey(collection));
     } else {
-      this.storage.setItem(
+      localStorage.setItem(
         this.getCollectionKey(collection),
         JSON.stringify(Object.fromEntries(data))
       );
@@ -45,6 +38,6 @@ export class LocalStorageDataAdapter extends KeyValueDataAdapter {
   }
 
   async clear(collection: string): Promise<void> {
-    this.storage.removeItem(this.getCollectionKey(collection));
+    localStorage.removeItem(this.getCollectionKey(collection));
   }
 } 

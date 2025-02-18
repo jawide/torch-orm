@@ -1,16 +1,12 @@
 import { Entity } from '../Entity';
 import { KeyValueDataAdapter } from './KeyValueDataAdapter';
 
-export interface MapDataAdapterOptions {
-  initialData?: Map<string, Map<string | number, Entity>>;
-}
-
 export class MapDataAdapter extends KeyValueDataAdapter {
   private storage: Map<string, Map<string | number, Entity>>;
 
-  constructor(options: MapDataAdapterOptions = {}) {
+  constructor() {
     super();
-    this.storage = options.initialData || new Map();
+    this.storage = new Map();
   }
 
   protected getCollection<T extends Entity>(collection: string): Map<string | number, T> {

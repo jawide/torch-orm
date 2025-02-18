@@ -42,12 +42,11 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   }
 
   async create<T extends Entity>(collection: string, data: T): Promise<T> {
-    const id = data.id;
-    if (!id) {
+    if (!data.id) {
       throw new Error('Entity must have an id');
     }
     const entities = this.getCollection<T>(collection);
-    entities.set(String(id), data);
+    entities.set(String(data.id), data);
     this.saveCollection(collection, entities);
     return data;
   }

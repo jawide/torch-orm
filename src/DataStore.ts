@@ -1,21 +1,14 @@
-import { DataAdapter } from "./DataAdapter";
-import { Entity } from "./Entity";
-import { Query } from "./Query";
-
-export interface DataStoreOptions {
-  adapter: DataAdapter;
-  idAttribute?: string;
-}
+import { DataAdapter } from './DataAdapter';
+import { Entity } from './Entity';
+import { Query } from './Query';
 
 export class DataStore<T extends Entity> {
   private adapter: DataAdapter;
   private collection: string;
-  private idAttribute: string;
 
-  constructor(collection: string, options: DataStoreOptions) {
-    this.adapter = options.adapter;
+  constructor(adapter: DataAdapter, collection: string) {
+    this.adapter = adapter;
     this.collection = collection;
-    this.idAttribute = options.idAttribute || "id";
   }
 
   async find(query: Query = {}): Promise<T[]> {
