@@ -1,4 +1,5 @@
-import { DataAdapter, Entity } from '../../types';
+import { DataAdapter } from '../../DataAdapter';
+import { Entity } from '../../Entity';
 
 export interface TestUser extends Entity {
   id: number;

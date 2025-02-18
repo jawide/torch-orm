@@ -1,4 +1,6 @@
-import { DataAdapter, Entity, Query } from './types';
+import { DataAdapter } from './DataAdapter';
+import { Entity } from './Entity';
+import { Query } from './Query';
 
 export class DataStore<T extends Entity> {
   private adapter: DataAdapter;

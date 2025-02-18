@@ -1,4 +1,6 @@
-import { DataAdapter, Entity, Query } from '../types';
+import { DataAdapter } from '../DataAdapter';
+import { Entity } from '../Entity';
+import { Query } from '../Query';
 
 export abstract class KeyValueDataAdapter implements DataAdapter {
   protected abstract getCollection<T extends Entity>(collection: string): Map<string | number, T>;

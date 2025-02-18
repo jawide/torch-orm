@@ -1,14 +1,5 @@
-export interface Entity {
-  id: string | number;
-  [key: string]: any;
-}
-
-export interface Query {
-  where?: Record<string, any>;
-  limit?: number;
-  offset?: number;
-  sort?: Array<[string, 'asc' | 'desc']>;
-}
+import { Entity } from './Entity';
+import { Query } from './Query';
 
 export interface DataAdapter {
   find<T extends Entity>(collection: string, query: Query): Promise<T[]>;

@@ -1,4 +1,4 @@
-import { Entity } from '../types';
+import { Entity } from '../Entity';
 import { KeyValueDataAdapter } from './KeyValueDataAdapter';
 
 export class LocalStorageDataAdapter extends KeyValueDataAdapter {
