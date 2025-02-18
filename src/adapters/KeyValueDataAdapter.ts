@@ -1,28 +1,9 @@
 import { DataAdapter, Entity, Query } from '../types';
 
-/**
- * 键值数据库适配器的抽象基类
- * 实现了基于键值存储的通用查询、排序和过滤逻辑
- */
 export abstract class KeyValueDataAdapter implements DataAdapter {
-  /**
-   * 从存储中获取指定集合的所有实体
-   * @param collection 集合名称
-   */
   protected abstract getCollection<T extends Entity>(collection: string): Map<string | number, T>;
-
-  /**
-   * 将实体集合保存到存储中
-   * @param collection 集合名称
-   * @param data 实体集合
-   */
   protected abstract saveCollection<T extends Entity>(collection: string, data: Map<string | number, T>): void;
 
-  /**
-   * 过滤实体列表
-   * @param entities 实体列表
-   * @param query 查询条件
-   */
   private filterEntities<T extends Entity>(entities: T[], query: Query): T[] {
     let result = entities;
 
