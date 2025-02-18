@@ -1,0 +1,15 @@
+{
+  "vscodeGitCommit.variables": {
+    "prefix": "alpha8"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "tsconfig.json": "tsconfig.*.json",
+    "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb",
+    "next-env.d.ts": "*.d.ts",
+    "next.config.*": "*.config.js, *.config.ts, *.config.mjs, *.config.cjs"
+  },
+  "prettier.printWidth": 120
+}
