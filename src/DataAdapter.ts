@@ -1,5 +1,5 @@
-import { Entity } from './Entity';
-import { Query } from './Query';
+import { Entity } from "./Entity";
+import { Query } from "./Query";
 
 export interface DataAdapter {
   find<T extends Entity>(collection: string, query: Query): Promise<T[]>;
