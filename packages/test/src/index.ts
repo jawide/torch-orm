@@ -1,1 +1,1 @@
-export * from "./adapter-test-utils"; 
+export * from "./adapter-test-utils";

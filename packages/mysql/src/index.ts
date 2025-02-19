@@ -1,1 +1,1 @@
-export * from "./MySQLDataAdapter"; 
+export * from "./MySQLDataAdapter";

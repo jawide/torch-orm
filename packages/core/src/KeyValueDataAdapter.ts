@@ -5,13 +5,16 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   public idAttribute: string = "id";
 
   protected abstract getCollection<T extends Record<string, any>>(collection: string): Map<string | number, T>;
-  protected abstract saveCollection<T extends Record<string, any>>(collection: string, data: Map<string | number, T>): void;
+  protected abstract saveCollection<T extends Record<string, any>>(
+    collection: string,
+    data: Map<string | number, T>
+  ): void;
 
   private filterEntities<T extends Record<string, any>>(entities: T[], query: Query): T[] {
     let result = entities;
 
     if (query.where) {
-      result = result.filter(entity => {
+      result = result.filter((entity) => {
         return Object.entries(query.where || {}).every(([key, value]) => entity[key] === value);
       });
     }
@@ -76,4 +79,4 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   async clear(collection: string): Promise<void> {
     this.saveCollection(collection, new Map());
   }
-} 
+}

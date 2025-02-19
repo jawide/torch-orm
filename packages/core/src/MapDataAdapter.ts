@@ -28,4 +28,4 @@ export class MapDataAdapter extends KeyValueDataAdapter {
       this.storage.set(collection, data);
     }
   }
-} 
+}

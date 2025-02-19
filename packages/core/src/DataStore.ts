@@ -35,4 +35,4 @@ export class DataStore<T extends Record<string, any>> {
   async clear(): Promise<void> {
     return this.adapter.clear(this.collection);
   }
-} 
+}

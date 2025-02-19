@@ -3,4 +3,4 @@ export interface Query {
   limit?: number;
   offset?: number;
   sort?: Array<[string, "asc" | "desc"]>;
-} 
+}

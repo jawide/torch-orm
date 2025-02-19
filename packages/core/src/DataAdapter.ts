@@ -7,4 +7,4 @@ export interface DataAdapter {
   update<T extends Record<string, any>>(collection: string, id: string | number, data: Partial<T>): Promise<T>;
   delete(collection: string, id: string | number): Promise<void>;
   clear(collection: string): Promise<void>;
-} 
+}

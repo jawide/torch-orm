@@ -1,1 +1,1 @@
-export * from "./SQLiteDataAdapter"; 
+export * from "./SQLiteDataAdapter";

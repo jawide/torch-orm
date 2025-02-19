@@ -52,8 +52,8 @@ export class SQLiteDataAdapter implements DataAdapter {
     }
 
     if (query.sort) {
-      const orderBy = query.sort.map(([field, order]) => 
-        `json_extract(data, '$.${field}') ${order === "asc" ? "ASC" : "DESC"}`
+      const orderBy = query.sort.map(
+        ([field, order]) => `json_extract(data, '$.${field}') ${order === "asc" ? "ASC" : "DESC"}`
       );
       sql += ` ORDER BY ${orderBy.join(", ")}`;
     }
@@ -80,10 +80,10 @@ export class SQLiteDataAdapter implements DataAdapter {
       throw new Error(`Entity must have an ${this.idAttribute}`);
     }
 
-    this.db.run(
-      `INSERT INTO ${collection} (${this.idAttribute}, data) VALUES (?, ?)`,
-      [String(id), JSON.stringify(data)]
-    );
+    this.db.run(`INSERT INTO ${collection} (${this.idAttribute}, data) VALUES (?, ?)`, [
+      String(id),
+      JSON.stringify(data),
+    ]);
 
     return data;
   }
@@ -92,10 +92,7 @@ export class SQLiteDataAdapter implements DataAdapter {
     await this.ensureTable(collection);
     if (!this.db) throw new Error("Database not initialized");
 
-    const result = this.db.exec(
-      `SELECT data FROM ${collection} WHERE ${this.idAttribute} = ?`,
-      [String(id)]
-    );
+    const result = this.db.exec(`SELECT data FROM ${collection} WHERE ${this.idAttribute} = ?`, [String(id)]);
 
     if (!result[0]?.values?.length) {
       throw new Error("Entity not found");
@@ -104,10 +101,10 @@ export class SQLiteDataAdapter implements DataAdapter {
     const existing = JSON.parse(result[0].values[0][0] as string);
     const updated = { ...existing, ...data };
 
-    this.db.run(
-      `UPDATE ${collection} SET data = ? WHERE ${this.idAttribute} = ?`,
-      [JSON.stringify(updated), String(id)]
-    );
+    this.db.run(`UPDATE ${collection} SET data = ? WHERE ${this.idAttribute} = ?`, [
+      JSON.stringify(updated),
+      String(id),
+    ]);
 
     return updated;
   }
@@ -116,10 +113,7 @@ export class SQLiteDataAdapter implements DataAdapter {
     await this.ensureTable(collection);
     if (!this.db) throw new Error("Database not initialized");
 
-    this.db.run(
-      `DELETE FROM ${collection} WHERE ${this.idAttribute} = ?`,
-      [String(id)]
-    );
+    this.db.run(`DELETE FROM ${collection} WHERE ${this.idAttribute} = ?`, [String(id)]);
   }
 
   async clear(collection: string): Promise<void> {
@@ -128,4 +122,4 @@ export class SQLiteDataAdapter implements DataAdapter {
 
     this.db.run(`DELETE FROM ${collection}`);
   }
-} 
+}

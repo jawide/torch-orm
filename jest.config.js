@@ -9,7 +9,7 @@ export default {
   moduleFileExtensions: ["ts", "js", "json", "node"],
   extensionsToTreatAsEsm: [".ts"],
   moduleNameMapper: {
-    "^(\\.{1,2}/.*)\\.js$": "$1",
+    "^@torch-orm/(.*)$": "<rootDir>/packages/$1/src",
   },
   transform: {
     "^.+\\.tsx?$": [
