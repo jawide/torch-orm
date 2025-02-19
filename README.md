@@ -6,14 +6,19 @@
 
 - 支持浏览器和 Node.js
 - 基于适配器模式，易于扩展
-- 内置 Map、LocalStorage、SQLite、MySQL 适配器
 - TypeScript 支持
 - 简单的 API 设计
 
 ## 安装
 
 ```bash
+# 安装核心包
 pnpm add @torch-orm/core
+
+# 安装适配器（根据需要选择）
+pnpm add @torch-orm/localstorage  # 浏览器 LocalStorage 适配器
+pnpm add @torch-orm/sqlite        # SQLite 适配器
+pnpm add @torch-orm/mysql         # MySQL 适配器
 ```
 
 ## 使用示例
@@ -86,6 +91,8 @@ interface Query {
 使用 JavaScript Map 作为存储后端的内存适配器。
 
 ```typescript
+import { MapDataAdapter } from "@torch-orm/core";
+
 interface MapDataAdapterOptions {
   initialData?: Map<string, Map<string | number, Record<string, any>>>;
 }
@@ -100,6 +107,8 @@ const adapter = new MapDataAdapter({
 使用浏览器 LocalStorage 作为存储后端的适配器。
 
 ```typescript
+import { LocalStorageDataAdapter } from "@torch-orm/localstorage";
+
 interface LocalStorageDataAdapterOptions {
   prefix?: string;    // 可选，键前缀，默认为 "torch-orm:"
   storage?: Storage;  // 可选，存储实现，默认为 localStorage
@@ -116,6 +125,8 @@ const adapter = new LocalStorageDataAdapter({
 使用 SQL.js 作为存储后端的 SQLite 适配器。
 
 ```typescript
+import { SQLiteDataAdapter } from "@torch-orm/sqlite";
+
 interface SQLiteDataAdapterOptions {
   filename?: string;  // 可选，数据库文件名
   memory?: boolean;   // 可选，是否使用内存数据库
@@ -131,6 +142,8 @@ const adapter = new SQLiteDataAdapter({
 使用 MySQL 作为存储后端的适配器。
 
 ```typescript
+import { MySQLDataAdapter } from "@torch-orm/mysql";
+
 interface MySQLDataAdapterOptions {
   host: string;
   user: string;
@@ -169,6 +182,20 @@ pnpm test
 
 # 构建
 pnpm build
+
+# 清理
+pnpm clean
+```
+
+## 项目结构
+
+```
+packages/
+  ├── core/           # 核心包
+  ├── localstorage/   # LocalStorage 适配器
+  ├── sqlite/         # SQLite 适配器
+  ├── mysql/          # MySQL 适配器
+  └── test/           # 测试工具包
 ```
 
 ## 许可证
