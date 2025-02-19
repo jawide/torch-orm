@@ -4,4 +4,3 @@ export * from "./DataStore";
 export * from "./adapters/MapDataAdapter";
 export * from "./adapters/LocalStorageDataAdapter";
 export * from "./adapters/SQLiteDataAdapter";
-export * from "./adapters/MySQLDataAdapter"; 

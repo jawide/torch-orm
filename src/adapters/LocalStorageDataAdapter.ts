@@ -6,8 +6,8 @@ export interface LocalStorageDataAdapterOptions {
 }
 
 export class LocalStorageDataAdapter extends KeyValueDataAdapter {
-  private prefix: string;
-  private storage: Storage;
+  public prefix: string;
+  public storage: Storage;
 
   constructor(options: LocalStorageDataAdapterOptions = {}) {
     super();

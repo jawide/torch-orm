@@ -6,7 +6,7 @@
 
 - 支持浏览器和 Node.js
 - 基于适配器模式，易于扩展
-- 内置 Map、LocalStorage 适配器
+- 内置 Map、LocalStorage、SQLite、MySQL 适配器
 - TypeScript 支持
 - 简单的 API 设计
 
@@ -87,7 +87,7 @@ interface Query {
 
 ```typescript
 interface MapDataAdapterOptions {
-  initialData?: Map<string, Map<string | number, Entity>>;
+  initialData?: Map<string, Map<string | number, Record<string, any>>>;
 }
 
 const adapter = new MapDataAdapter({
@@ -109,6 +109,53 @@ const adapter = new LocalStorageDataAdapter({
   prefix: "app:",
   storage: sessionStorage // 可选，使用其他存储实现
 });
+```
+
+### SQLiteDataAdapter
+
+使用 SQL.js 作为存储后端的 SQLite 适配器。
+
+```typescript
+interface SQLiteDataAdapterOptions {
+  filename?: string;  // 可选，数据库文件名
+  memory?: boolean;   // 可选，是否使用内存数据库
+}
+
+const adapter = new SQLiteDataAdapter({
+  memory: true // 使用内存数据库
+});
+```
+
+### MySQLDataAdapter
+
+使用 MySQL 作为存储后端的适配器。
+
+```typescript
+interface MySQLDataAdapterOptions {
+  host: string;
+  user: string;
+  password: string;
+  database: string;
+  // 其他 mysql2 连接池选项
+  waitForConnections?: boolean;
+  connectionLimit?: number;
+  maxIdle?: number;
+  idleTimeout?: number;
+  queueLimit?: number;
+  enableKeepAlive?: boolean;
+  keepAliveInitialDelay?: number;
+}
+
+const adapter = new MySQLDataAdapter({
+  host: "localhost",
+  user: "root",
+  password: "password",
+  database: "myapp",
+  connectionLimit: 10
+});
+
+// 使用完毕后关闭连接池
+await adapter.close();
 ```
 
 ## 开发

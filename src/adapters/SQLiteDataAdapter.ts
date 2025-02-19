@@ -9,8 +9,8 @@ export interface SQLiteDataAdapterOptions {
 
 export class SQLiteDataAdapter implements DataAdapter {
   public idAttribute: string = "id";
-  private db: Database | null = null;
-  private initPromise: Promise<void>;
+  public db: Database | null = null;
+  public initPromise: Promise<void>;
 
   constructor(options: SQLiteDataAdapterOptions = {}) {
     this.initPromise = this.init();

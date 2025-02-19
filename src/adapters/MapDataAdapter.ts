@@ -5,7 +5,7 @@ export interface MapDataAdapterOptions {
 }
 
 export class MapDataAdapter extends KeyValueDataAdapter {
-  private storage: Map<string, Map<string | number, Record<string, any>>>;
+  public storage: Map<string, Map<string | number, Record<string, any>>>;
 
   constructor(options: MapDataAdapterOptions = {}) {
     super();
