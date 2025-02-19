@@ -7,8 +7,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "jest",
-    "clean": "pnpm -r clean",
-    "publish": "pnpm test && pnpm build && && nrm use npm && pnpm -r publish && nrm use taobao"
+    "clean": "pnpm -r clean"
   },
   "keywords": [
     "orm",
