@@ -4,11 +4,11 @@ import { Query } from "./Query";
 export abstract class KeyValueDataAdapter implements DataAdapter {
   public idAttribute: string = "id";
 
-  protected abstract getCollection<T extends Record<string, any>>(collection: string): Map<string | number, T>;
+  protected abstract getCollection<T extends Record<string, any>>(collection: string): Promise<Map<string | number, T>>;
   protected abstract saveCollection<T extends Record<string, any>>(
     collection: string,
     data: Map<string | number, T>
-  ): void;
+  ): Promise<void>;
 
   private filterEntities<T extends Record<string, any>>(entities: T[], query: Query): T[] {
     let result = entities;
@@ -41,7 +41,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   }
 
   async find<T extends Record<string, any>>(collection: string, query: Query): Promise<T[]> {
-    const entities = Array.from(this.getCollection<T>(collection).values());
+    const entities = Array.from((await this.getCollection<T>(collection)).values());
     return this.filterEntities(entities, query);
   }
 
@@ -50,14 +50,14 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
     if (!id) {
       throw new Error(`Entity must have an ${this.idAttribute}`);
     }
-    const entities = this.getCollection<T>(collection);
+    const entities = await this.getCollection<T>(collection);
     entities.set(String(id), data);
-    this.saveCollection(collection, entities);
+    await this.saveCollection(collection, entities);
     return data;
   }
 
   async update<T extends Record<string, any>>(collection: string, id: string | number, data: Partial<T>): Promise<T> {
-    const entities = this.getCollection<T>(collection);
+    const entities = await this.getCollection<T>(collection);
     const strId = String(id);
     const existing = entities.get(strId);
 
@@ -66,17 +66,17 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
     }
     const updated = { ...existing, ...data };
     entities.set(strId, updated);
-    this.saveCollection(collection, entities);
+    await this.saveCollection(collection, entities);
     return updated;
   }
 
   async delete(collection: string, id: string | number): Promise<void> {
-    const entities = this.getCollection(collection);
+    const entities = await this.getCollection(collection);
     entities.delete(String(id));
-    this.saveCollection(collection, entities);
+    await this.saveCollection(collection, entities);
   }
 
   async clear(collection: string): Promise<void> {
-    this.saveCollection(collection, new Map());
+    await this.saveCollection(collection, new Map());
   }
 }

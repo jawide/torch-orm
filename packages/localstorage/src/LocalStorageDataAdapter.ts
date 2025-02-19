@@ -19,7 +19,7 @@ export class LocalStorageDataAdapter extends KeyValueDataAdapter {
     return `${this.prefix}${collection}`;
   }
 
-  protected getCollection<T extends Record<string, any>>(collection: string): Map<string | number, T> {
+  protected async getCollection<T extends Record<string, any>>(collection: string): Promise<Map<string | number, T>> {
     const data = this.storage.getItem(this.getCollectionKey(collection));
     if (!data) {
       return new Map();
@@ -32,7 +32,10 @@ export class LocalStorageDataAdapter extends KeyValueDataAdapter {
     }
   }
 
-  protected saveCollection<T extends Record<string, any>>(collection: string, data: Map<string | number, T>): void {
+  protected async saveCollection<T extends Record<string, any>>(
+    collection: string,
+    data: Map<string | number, T>
+  ): Promise<void> {
     if (data.size === 0) {
       this.storage.removeItem(this.getCollectionKey(collection));
     } else {

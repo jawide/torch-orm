@@ -12,7 +12,7 @@ export class MapDataAdapter extends KeyValueDataAdapter {
     this.storage = options.initialData || new Map();
   }
 
-  protected getCollection<T extends Record<string, any>>(collection: string): Map<string | number, T> {
+  protected async getCollection<T extends Record<string, any>>(collection: string): Promise<Map<string | number, T>> {
     let data = this.storage.get(collection);
     if (!data) {
       data = new Map();
@@ -21,7 +21,10 @@ export class MapDataAdapter extends KeyValueDataAdapter {
     return data as Map<string | number, T>;
   }
 
-  protected saveCollection<T extends Record<string, any>>(collection: string, data: Map<string | number, T>): void {
+  protected async saveCollection<T extends Record<string, any>>(
+    collection: string,
+    data: Map<string | number, T>
+  ): Promise<void> {
     if (data.size === 0) {
       this.storage.delete(collection);
     } else {
