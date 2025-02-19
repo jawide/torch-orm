@@ -8,7 +8,7 @@
     "build": "pnpm -r build",
     "test": "jest",
     "clean": "pnpm -r clean",
-    "publish": "nrm use npm && pnpm -r publish && nrm use taobao"
+    "publish:npm": "pnpm build && nrm use npm && pnpm -r publish && nrm use taobao"
   },
   "keywords": [
     "orm",
