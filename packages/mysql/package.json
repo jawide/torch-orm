@@ -12,10 +12,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "jest",
-    "test:watch": "jest --watch",
     "clean": "rimraf dist coverage node_modules",
-    "prepublishOnly": "pnpm test && pnpm build"
+    "publish": "pnpm build && nrm use npm && pnpm publish && nrm use taobao"
   },
   "keywords": [
     "orm",
