@@ -16,7 +16,7 @@
     "test:watch": "jest --watch",
     "clean": "rimraf dist coverage",
     "prepublishOnly": "pnpm test && pnpm build",
-    "publish": "nrm use npm && pnpm publish && nrm use taobao"
+    "publishToNpm": "nrm use npm && pnpm publish && nrm use taobao"
   },
   "keywords": [
     "orm",
