@@ -1,4 +1,4 @@
-import { KeyValueDataAdapter } from "./KeyValueDataAdapter";
+import { KeyValueDataAdapter } from "@torch-orm/core";
 
 export interface LocalStorageDataAdapterOptions {
   prefix?: string;
@@ -36,14 +36,11 @@ export class LocalStorageDataAdapter extends KeyValueDataAdapter {
     if (data.size === 0) {
       this.storage.removeItem(this.getCollectionKey(collection));
     } else {
-      this.storage.setItem(
-        this.getCollectionKey(collection),
-        JSON.stringify(Object.fromEntries(data))
-      );
+      this.storage.setItem(this.getCollectionKey(collection), JSON.stringify(Object.fromEntries(data)));
     }
   }
 
   async clear(collection: string): Promise<void> {
     this.storage.removeItem(this.getCollectionKey(collection));
   }
-} 
+}

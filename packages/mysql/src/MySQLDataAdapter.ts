@@ -1,5 +1,4 @@
-import { DataAdapter } from "../DataAdapter";
-import { Query } from "../Query";
+import { DataAdapter, Query } from "@torch-orm/core";
 import mysql, { Pool, PoolConnection, PoolOptions } from "mysql2/promise";
 
 export interface MySQLDataAdapterOptions extends PoolOptions {
@@ -44,8 +43,8 @@ export class MySQLDataAdapter implements DataAdapter {
       }
 
       if (query.sort) {
-        const orderBy = query.sort.map(([field, order]) => 
-          `JSON_EXTRACT(data, '$.${field}') ${order === "asc" ? "ASC" : "DESC"}`
+        const orderBy = query.sort.map(
+          ([field, order]) => `JSON_EXTRACT(data, '$.${field}') ${order === "asc" ? "ASC" : "DESC"}`
         );
         sql += ` ORDER BY ${orderBy.join(", ")}`;
       }
@@ -63,7 +62,7 @@ export class MySQLDataAdapter implements DataAdapter {
       }
 
       const [rows] = await connection.query(sql, params);
-      return (rows as any[]).map(row => JSON.parse(row.data));
+      return (rows as any[]).map((row) => JSON.parse(row.data));
     } finally {
       connection.release();
     }
@@ -80,10 +79,10 @@ export class MySQLDataAdapter implements DataAdapter {
       }
 
       const jsonData = JSON.stringify(data);
-      await connection.query(
-        `INSERT INTO ${collection} (${this.idAttribute}, data) VALUES (?, ?)`,
-        [String(id), jsonData]
-      );
+      await connection.query(`INSERT INTO ${collection} (${this.idAttribute}, data) VALUES (?, ?)`, [
+        String(id),
+        jsonData,
+      ]);
 
       return data;
     } finally {
@@ -109,10 +108,7 @@ export class MySQLDataAdapter implements DataAdapter {
       const updated = { ...existing, ...data };
       const jsonData = JSON.stringify(updated);
 
-      await connection.query(
-        `UPDATE ${collection} SET data = ? WHERE ${this.idAttribute} = ?`,
-        [jsonData, String(id)]
-      );
+      await connection.query(`UPDATE ${collection} SET data = ? WHERE ${this.idAttribute} = ?`, [jsonData, String(id)]);
 
       return updated;
     } finally {
@@ -125,10 +121,7 @@ export class MySQLDataAdapter implements DataAdapter {
     try {
       await this.ensureTable(connection, collection);
 
-      await connection.query(
-        `DELETE FROM ${collection} WHERE ${this.idAttribute} = ?`,
-        [String(id)]
-      );
+      await connection.query(`DELETE FROM ${collection} WHERE ${this.idAttribute} = ?`, [String(id)]);
     } finally {
       connection.release();
     }
@@ -147,4 +140,4 @@ export class MySQLDataAdapter implements DataAdapter {
   async close(): Promise<void> {
     await this.pool.end();
   }
-} 
+}

@@ -1,8 +1,8 @@
-import { DataAdapter } from '../DataAdapter';
-import { Query } from '../Query';
+import { DataAdapter } from "./DataAdapter";
+import { Query } from "./Query";
 
 export abstract class KeyValueDataAdapter implements DataAdapter {
-  public idAttribute: string = 'id';
+  public idAttribute: string = "id";
 
   protected abstract getCollection<T extends Record<string, any>>(collection: string): Map<string | number, T>;
   protected abstract saveCollection<T extends Record<string, any>>(collection: string, data: Map<string | number, T>): void;
@@ -19,8 +19,8 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
     if (query.sort) {
       result = [...result].sort((a, b) => {
         for (const [field, order] of query.sort || []) {
-          if (a[field] < b[field]) return order === 'asc' ? -1 : 1;
-          if (a[field] > b[field]) return order === 'asc' ? 1 : -1;
+          if (a[field] < b[field]) return order === "asc" ? -1 : 1;
+          if (a[field] > b[field]) return order === "asc" ? 1 : -1;
         }
         return 0;
       });
@@ -57,8 +57,9 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
     const entities = this.getCollection<T>(collection);
     const strId = String(id);
     const existing = entities.get(strId);
+
     if (!existing) {
-      throw new Error('Entity not found');
+      throw new Error("Entity not found");
     }
     const updated = { ...existing, ...data };
     entities.set(strId, updated);

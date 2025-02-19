@@ -1,0 +1,36 @@
+{
+  "name": "@torch-orm/localstorage",
+  "version": "1.0.5",
+  "description": "LocalStorage adapter for Torch ORM",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist coverage node_modules"
+  },
+  "keywords": [
+    "orm",
+    "database",
+    "typescript",
+    "browser",
+    "localstorage",
+    "adapter"
+  ],
+  "author": "jawide",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "peerDependencies": {
+    "@torch-orm/core": "workspace:^"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

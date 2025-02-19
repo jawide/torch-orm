@@ -1,5 +1,5 @@
-import { DataAdapter } from './DataAdapter';
-import { Query } from './Query';
+import { DataAdapter } from "./DataAdapter";
+import { Query } from "./Query";
 
 export interface DataStoreOptions {
   adapter: DataAdapter;

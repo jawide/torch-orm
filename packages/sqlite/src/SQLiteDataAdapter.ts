@@ -1,5 +1,4 @@
-import { DataAdapter } from "../DataAdapter";
-import { Query } from "../Query";
+import { DataAdapter, Query } from "@torch-orm/core";
 import initSqlJs, { Database } from "sql.js";
 
 export interface SQLiteDataAdapterOptions {
