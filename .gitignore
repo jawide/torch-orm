@@ -1,30 +1,3 @@
-# Source
-src/
-examples/
-
-# Tests
-__tests__/
+dist/
 coverage/
-*.test.ts
-
-# Config files
-tsconfig.json
-jest.config.js
-.gitignore
-.env
-
-# Editor directories
-.vscode/
-.idea/
-
-# Dependencies
 node_modules/
-
-# Logs
-*.log
-.DS_Store
-
-# Lock files
-pnpm-lock.yaml
-package-lock.json
-yarn.lock
