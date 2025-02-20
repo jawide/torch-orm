@@ -4,3 +4,4 @@ export * from "./DataStore";
 
 export * from "./KeyValueDataAdapter";
 export * from "./MapDataAdapter";
+export * from "./SQLDataAdapter";

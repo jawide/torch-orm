@@ -15,35 +15,22 @@ export class LocalStorageDataAdapter extends KeyValueDataAdapter {
     this.storage = options.storage || localStorage;
   }
 
-  private getCollectionKey(collection: string): string {
-    return `${this.prefix}${collection}`;
+  public async getValue<T>(key: string): Promise<T> {
+    return JSON.parse(this.storage.getItem(key) ?? "null") as T;
   }
-
-  protected async getCollection<T extends Record<string, any>>(collection: string): Promise<Map<string | number, T>> {
-    const data = this.storage.getItem(this.getCollectionKey(collection));
-    if (!data) {
-      return new Map();
-    }
-    try {
-      const parsed = JSON.parse(data);
-      return new Map(Object.entries(parsed));
-    } catch {
-      return new Map();
-    }
+  public async setValue<T>(key: string, value: T): Promise<void> {
+    this.storage.setItem(key, JSON.stringify(value));
   }
-
-  protected async saveCollection<T extends Record<string, any>>(
-    collection: string,
-    data: Map<string | number, T>
-  ): Promise<void> {
-    if (data.size === 0) {
-      this.storage.removeItem(this.getCollectionKey(collection));
-    } else {
-      this.storage.setItem(this.getCollectionKey(collection), JSON.stringify(Object.fromEntries(data)));
-    }
+  public async removeValue(key: string): Promise<void> {
+    this.storage.removeItem(key);
   }
-
-  async clear(collection: string): Promise<void> {
-    this.storage.removeItem(this.getCollectionKey(collection));
+  public async getIndex(key: string): Promise<string[]> {
+    return JSON.parse(this.storage.getItem(key) ?? "[]") as string[];
+  }
+  public async setIndex(key: string, value: string[]): Promise<void> {
+    this.storage.setItem(key, JSON.stringify(value));
+  }
+  public async removeIndex(key: string): Promise<void> {
+    this.storage.removeItem(key);
   }
 }

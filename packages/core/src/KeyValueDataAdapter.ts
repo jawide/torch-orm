@@ -4,79 +4,128 @@ import { Query } from "./Query";
 export abstract class KeyValueDataAdapter implements DataAdapter {
   public idAttribute: string = "id";
 
-  protected abstract getCollection<T extends Record<string, any>>(collection: string): Promise<Map<string | number, T>>;
-  protected abstract saveCollection<T extends Record<string, any>>(
-    collection: string,
-    data: Map<string | number, T>
-  ): Promise<void>;
+  public abstract getValue<T>(key: string): Promise<T>;
+  public abstract setValue<T>(key: string, value: T): Promise<void>;
+  public abstract removeValue(key: string): Promise<void>;
+  public abstract getIndex(key: string): Promise<string[]>;
+  public abstract setIndex(key: string, value: string[]): Promise<void>;
+  public abstract removeIndex(key: string): Promise<void>;
 
-  private filterEntities<T extends Record<string, any>>(entities: T[], query: Query): T[] {
+  public getKey(collection: string, id: string): string {
+    return `${collection}:item:${id}`;
+  }
+
+  public getIndexKey(collection: string): string {
+    return `${collection}:index`;
+  }
+
+  public filterEntities<T>(entities: T[], query?: Query<T>): T[] {
     let result = entities;
 
-    if (query.where) {
+    if (query?.where) {
       result = result.filter((entity) => {
-        return Object.entries(query.where || {}).every(([key, value]) => entity[key] === value);
+        return Object.entries(query.where as any).every(([key, value]) => (entity as any)[key] === value);
       });
     }
 
-    if (query.sort) {
-      result = [...result].sort((a, b) => {
-        for (const [field, order] of query.sort || []) {
-          if (a[field] < b[field]) return order === "asc" ? -1 : 1;
-          if (a[field] > b[field]) return order === "asc" ? 1 : -1;
+    if (query?.sort) {
+      result = result.sort((a, b) => {
+        for (const [field, order] of Object.entries(query.sort ?? {})) {
+          if ((a as any)[field] < (b as any)[field]) return order === "asc" ? -1 : 1;
+          if ((a as any)[field] > (b as any)[field]) return order === "asc" ? 1 : -1;
         }
         return 0;
       });
     }
 
-    if (query.offset) {
-      result = result.slice(query.offset);
-    }
-
-    if (query.limit) {
+    if (query?.limit) {
       result = result.slice(0, query.limit);
     }
 
     return result;
   }
 
-  async find<T extends Record<string, any>>(collection: string, query: Query): Promise<T[]> {
-    const entities = Array.from((await this.getCollection<T>(collection)).values());
-    return this.filterEntities(entities, query);
+  public async find<T>(collection: string, query?: Query<T>): Promise<T[]> {
+    const index = await this.getIndex(collection);
+    const whereLength = Object.keys(query?.where ?? {}).length;
+    if (whereLength === 1 && (query!.where as any)[this.idAttribute]) {
+      const id = (query!.where as any)[this.idAttribute];
+      const entity = await this.getValue<T>(this.getKey(collection, id));
+      if (entity) {
+        return [entity];
+      } else {
+        return [];
+      }
+    } else {
+      const entities = await Promise.all(index.map((id) => this.getValue<T>(this.getKey(collection, id))));
+      return this.filterEntities(entities, query!);
+    }
   }
 
-  async create<T extends Record<string, any>>(collection: string, data: T): Promise<T> {
-    const id = data[this.idAttribute];
+  public async create<T>(collection: string, data: T): Promise<void> {
+    const id = (data as any)[this.idAttribute];
     if (!id) {
       throw new Error(`Entity must have an ${this.idAttribute}`);
     }
-    const entities = await this.getCollection<T>(collection);
-    entities.set(String(id), data);
-    await this.saveCollection(collection, entities);
-    return data;
+    const index = await this.getIndex(collection);
+    index.push(id);
+    await this.setIndex(collection, index);
+    await this.setValue(this.getKey(collection, id), data);
   }
 
-  async update<T extends Record<string, any>>(collection: string, id: string | number, data: Partial<T>): Promise<T> {
-    const entities = await this.getCollection<T>(collection);
-    const strId = String(id);
-    const existing = entities.get(strId);
-
-    if (!existing) {
-      throw new Error("Entity not found");
+  public async update<T>(collection: string, query: Query<T>, data: Partial<T>): Promise<void> {
+    const index = await this.getIndex(collection);
+    const whereLength = Object.keys(query?.where ?? {}).length;
+    if (whereLength == 1 && (query!.where as any)[this.idAttribute]) {
+      const id = (query!.where as any)[this.idAttribute];
+      let entity = await this.getValue<T>(this.getKey(collection, id));
+      if (entity) {
+        entity = { ...entity, ...data };
+        await this.setValue(this.getKey(collection, id), entity);
+      }
+    } else {
+      const entities = await Promise.all(index.map((id) => this.getValue<T>(this.getKey(collection, id))));
+      const filteredEntities = this.filterEntities(entities, query);
+      for (const entity of filteredEntities) {
+        const id = (entity as any)[this.idAttribute];
+        if (!id) {
+          throw new Error(`Entity must have an ${this.idAttribute}`);
+        }
+        await this.setValue(this.getKey(collection, id), { ...entity, ...data });
+      }
     }
-    const updated = { ...existing, ...data };
-    entities.set(strId, updated);
-    await this.saveCollection(collection, entities);
-    return updated;
   }
 
-  async delete(collection: string, id: string | number): Promise<void> {
-    const entities = await this.getCollection(collection);
-    entities.delete(String(id));
-    await this.saveCollection(collection, entities);
+  public async delete(collection: string, query: Query<any>): Promise<void> {
+    const index = await this.getIndex(collection);
+    const whereLength = Object.keys(query?.where ?? {}).length;
+    if (whereLength == 1 && (query!.where as any)[this.idAttribute]) {
+      const id = (query!.where as any)[this.idAttribute];
+      await this.removeValue(this.getKey(collection, id));
+      await this.setIndex(
+        collection,
+        index.filter((id) => id !== id)
+      );
+    } else {
+      const entities = await Promise.all(index.map((id) => this.getValue<any>(this.getKey(collection, id))));
+      const filteredEntities = this.filterEntities(entities, query);
+      for (const entity of filteredEntities) {
+        const id = (entity as any)[this.idAttribute];
+        if (!id) {
+          throw new Error(`Entity must have an ${this.idAttribute}`);
+        }
+        await this.removeValue(this.getKey(collection, id));
+      }
+      await this.setIndex(
+        collection,
+        index.filter((id) => !filteredEntities.some((entity) => (entity as any)[this.idAttribute] === id))
+      );
+    }
   }
 
-  async clear(collection: string): Promise<void> {
-    await this.saveCollection(collection, new Map());
+  public async clear(collection: string): Promise<void> {
+    const index = await this.getIndex(collection);
+    await Promise.all(index.map((id) => this.removeValue(this.getKey(collection, id))));
+    await this.removeIndex(collection);
   }
 }

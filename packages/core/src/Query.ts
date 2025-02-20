@@ -1,6 +1,5 @@
-export interface Query {
-  where?: Record<string, any>;
+export interface Query<T> {
+  where?: Partial<T>;
   limit?: number;
-  offset?: number;
-  sort?: Array<[string, "asc" | "desc"]>;
+  sort?: Record<string, "asc" | "desc">;
 }

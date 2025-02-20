@@ -6,10 +6,20 @@ interface TestUser {
   age: number;
 }
 
+interface TestPost {
+  id: number;
+  title: string;
+}
+
 const testUser: TestUser = {
   id: 1,
   name: "John Doe",
   age: 30,
+};
+
+const testPost: TestPost = {
+  id: 1,
+  title: "Test Post",
 };
 
 export function runAdapterTests(
@@ -36,7 +46,8 @@ export function runAdapterTests(
 
     describe("create", () => {
       it("should create an entity", async () => {
-        const created = await adapter.create("users", testUser);
+        await adapter.create("users", testUser);
+        const created = (await adapter.find<TestUser>("users", { where: { id: testUser.id } }))[0];
         expect(created).toEqual(testUser);
       });
 
@@ -54,7 +65,7 @@ export function runAdapterTests(
       });
 
       it("should find all entities without query", async () => {
-        const results = await adapter.find("users", {});
+        const results = await adapter.find("users");
         expect(results).toHaveLength(3);
       });
 
@@ -71,7 +82,7 @@ export function runAdapterTests(
       });
 
       it("should sort entities", async () => {
-        const results = await adapter.find("users", { sort: [["age", "desc"]] });
+        const results = await adapter.find<TestUser>("users", { sort: { age: "desc" } });
         expect(results).toHaveLength(3);
         expect(results[0].age).toBe(35);
         expect(results[1].age).toBe(30);
@@ -82,16 +93,6 @@ export function runAdapterTests(
         const results = await adapter.find("users", { limit: 2 });
         expect(results).toHaveLength(2);
       });
-
-      it("should offset results", async () => {
-        const results = await adapter.find("users", { offset: 1 });
-        expect(results).toHaveLength(2);
-      });
-
-      it("should combine limit and offset", async () => {
-        const results = await adapter.find("users", { limit: 1, offset: 1 });
-        expect(results).toHaveLength(1);
-      });
     });
 
     describe("update", () => {
@@ -100,12 +101,9 @@ export function runAdapterTests(
       });
 
       it("should update an entity", async () => {
-        const updated = await adapter.update("users", 1, { age: 31 });
+        await adapter.update<TestUser>("users", { where: { id: 1 } }, { age: 31 });
+        const updated = (await adapter.find<TestUser>("users", { where: { id: 1 } }))[0];
         expect(updated).toEqual({ ...testUser, age: 31 });
-      });
-
-      it("should throw error when updating non-existent entity", async () => {
-        await expect(adapter.update("users", 999, { age: 31 })).rejects.toThrow("Entity not found");
       });
     });
 
@@ -115,13 +113,13 @@ export function runAdapterTests(
       });
 
       it("should delete an entity", async () => {
-        await adapter.delete("users", 1);
+        await adapter.delete("users", { where: { id: 1 } });
         const results = await adapter.find("users", { where: { id: 1 } });
         expect(results).toHaveLength(0);
       });
 
       it("should not throw when deleting non-existent entity", async () => {
-        await expect(adapter.delete("users", 999)).resolves.not.toThrow();
+        await expect(adapter.delete("users", { where: { id: 999 } })).resolves.not.toThrow();
       });
     });
 
@@ -133,15 +131,15 @@ export function runAdapterTests(
 
       it("should clear all entities in a collection", async () => {
         await adapter.clear("users");
-        const results = await adapter.find("users", {});
+        const results = await adapter.find("users");
         expect(results).toHaveLength(0);
       });
 
       it("should only clear specified collection", async () => {
-        await adapter.create("posts", { id: 1, title: "Test Post" });
+        await adapter.create("posts", testPost);
         await adapter.clear("users");
-        const users = await adapter.find("users", {});
-        const posts = await adapter.find("posts", {});
+        const users = await adapter.find("users");
+        const posts = await adapter.find("posts");
         expect(users).toHaveLength(0);
         expect(posts).toHaveLength(1);
       });

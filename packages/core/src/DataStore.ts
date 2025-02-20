@@ -19,35 +19,35 @@ export class DataStore<T> {
     this.adapter.idAttribute = this.idAttribute;
   }
 
-  async find(query: Query = {}): Promise<T[]> {
+  async find(query: Query<T> = {}): Promise<T[]> {
     return this.adapter.find<T>(this.collection, query);
   }
 
-  async create(data: T): Promise<T> {
-    return this.adapter.create<T>(this.collection, data);
+  async create(data: T): Promise<void> {
+    await this.adapter.create<T>(this.collection, data);
   }
 
-  async update(query: Query, data: Partial<T>): Promise<T> {
-    return this.adapter.update<T>(this.collection, query, data);
+  async update(query: Query<T>, data: Partial<T>): Promise<void> {
+    await this.adapter.update<T>(this.collection, query, data);
   }
 
-  async delete(query: Query): Promise<void> {
-    return this.adapter.delete(this.collection, query);
+  async delete(query: Query<T>): Promise<void> {
+    await this.adapter.delete(this.collection, query);
   }
 
   async clear(): Promise<void> {
     return this.adapter.clear(this.collection);
   }
 
-  async get(id: string | number): Promise<T> {
+  async get(id: string): Promise<T> {
     const results = await this.adapter.find<T>(this.collection, {
       [this.idAttribute]: id,
     });
     return results[0];
   }
 
-  async set(id: string | number, data: T): Promise<T> {
-    return this.adapter.update<T>(
+  async set(id: string, data: T): Promise<void> {
+    await this.adapter.update<T>(
       this.collection,
       {
         [this.idAttribute]: id,

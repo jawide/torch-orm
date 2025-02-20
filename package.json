@@ -6,9 +6,13 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r build",
-    "test": "jest",
     "clean": "pnpm -r clean",
-    "publish:npm": "pnpm build && pnpm -r publish"
+    "publish:npm": "pnpm build && pnpm -r publish",
+    "test:all": "jest",
+    "test:map": "jest --testPathPattern=tests/map",
+    "test:localstorage": "jest --testPathPattern=tests/localstorage",
+    "test:sqlite": "jest --testPathPattern=tests/sqlite",
+    "test:mysql": "jest --testPathPattern=tests/mysql"
   },
   "keywords": [
     "orm",

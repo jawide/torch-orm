@@ -1,34 +1,33 @@
 import { KeyValueDataAdapter } from "./KeyValueDataAdapter";
 
 export interface MapDataAdapterOptions {
-  initialData?: Map<string, Map<string | number, Record<string, any>>>;
+  initialData?: Map<string, any>;
 }
 
 export class MapDataAdapter extends KeyValueDataAdapter {
-  public storage: Map<string, Map<string | number, Record<string, any>>>;
+  public storage: Map<string, any>;
 
   constructor(options: MapDataAdapterOptions = {}) {
     super();
     this.storage = options.initialData || new Map();
   }
 
-  protected async getCollection<T extends Record<string, any>>(collection: string): Promise<Map<string | number, T>> {
-    let data = this.storage.get(collection);
-    if (!data) {
-      data = new Map();
-      this.storage.set(collection, data);
-    }
-    return data as Map<string | number, T>;
+  public async getValue<T>(key: string): Promise<T> {
+    return this.storage.get(key) as T;
   }
-
-  protected async saveCollection<T extends Record<string, any>>(
-    collection: string,
-    data: Map<string | number, T>
-  ): Promise<void> {
-    if (data.size === 0) {
-      this.storage.delete(collection);
-    } else {
-      this.storage.set(collection, data);
-    }
+  public async setValue<T>(key: string, value: T): Promise<void> {
+    this.storage.set(key, value);
+  }
+  public async removeValue(key: string): Promise<void> {
+    this.storage.delete(key);
+  }
+  public async getIndex(key: string): Promise<string[]> {
+    return this.storage.get(key) ?? [];
+  }
+  public async setIndex(key: string, value: string[]): Promise<void> {
+    this.storage.set(key, value);
+  }
+  public async removeIndex(key: string): Promise<void> {
+    this.storage.delete(key);
   }
 }

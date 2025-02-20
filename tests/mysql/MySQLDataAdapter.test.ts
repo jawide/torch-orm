@@ -19,33 +19,49 @@ interface MySQLDataAdapterEnv {
 const env = process.env as unknown as MySQLDataAdapterEnv;
 
 const options = {
-  host: env.MYSQL_HOST,
-  port: env.MYSQL_PORT,
-  user: env.MYSQL_USER,
-  password: env.MYSQL_PASSWORD,
-  database: env.MYSQL_TEST_DATABASE,
-  waitForConnections: true,
-  connectionLimit: parseInt(env.MYSQL_CONNECTION_LIMIT),
-  maxIdle: parseInt(env.MYSQL_MAX_IDLE),
-  idleTimeout: parseInt(env.MYSQL_IDLE_TIMEOUT),
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0,
-} as MySQLDataAdapterOptions;
+  poolOptions: {
+    host: env.MYSQL_HOST,
+    port: env.MYSQL_PORT,
+    user: env.MYSQL_USER,
+    password: env.MYSQL_PASSWORD,
+    database: env.MYSQL_TEST_DATABASE,
+    waitForConnections: true,
+    connectionLimit: parseInt(env.MYSQL_CONNECTION_LIMIT),
+    maxIdle: parseInt(env.MYSQL_MAX_IDLE),
+    idleTimeout: parseInt(env.MYSQL_IDLE_TIMEOUT),
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
+  },
 
+  tables: {
+    users: {
+      id: "number",
+      name: "string",
+      age: "number",
+    },
+    posts: {
+      id: "number",
+      title: "string",
+    },
+  },
+} as MySQLDataAdapterOptions;
 const adapter = new MySQLDataAdapter(options);
 
 beforeAll(async () => {
   // 创建测试数据库
   const tempAdapter = new MySQLDataAdapter({
     ...options,
-    database: "mysql", // 使用系统数据库
-    connectionLimit: 1,
+    poolOptions: {
+      ...options.poolOptions,
+      database: "mysql", // 使用系统数据库
+      connectionLimit: 1,
+    },
   });
 
   try {
-    await tempAdapter.pool.execute(`DROP DATABASE IF EXISTS ${options.database}`);
-    await tempAdapter.pool.execute(`CREATE DATABASE ${options.database}`);
+    await tempAdapter.pool.execute(`DROP DATABASE IF EXISTS ${options.poolOptions.database}`);
+    await tempAdapter.pool.execute(`CREATE DATABASE ${options.poolOptions.database}`);
   } finally {
     await tempAdapter.close();
   }
@@ -55,12 +71,15 @@ afterAll(async () => {
   // 清理测试数据库
   const tempAdapter = new MySQLDataAdapter({
     ...options,
-    database: "mysql", // 使用系统数据库
-    connectionLimit: 1,
+    poolOptions: {
+      ...options.poolOptions,
+      database: "mysql", // 使用系统数据库
+      connectionLimit: 1,
+    },
   });
 
   try {
-    await tempAdapter.pool.execute(`DROP DATABASE IF EXISTS ${options.database}`);
+    await tempAdapter.pool.execute(`DROP DATABASE IF EXISTS ${options.poolOptions.database}`);
   } finally {
     await tempAdapter.close();
     await adapter.close();
