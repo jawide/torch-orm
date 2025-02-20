@@ -7,6 +7,9 @@
   "scripts": {
     "build": "pnpm -r build",
     "clean": "pnpm -r clean",
+    "version:patch": "pnpm -r version:patch",
+    "version:minor": "pnpm -r version:minor",
+    "version:major": "pnpm -r version:major",
     "publish:npm": "pnpm build && pnpm -r publish",
     "test:all": "jest",
     "test:core": "jest --testPathPattern=tests/core",

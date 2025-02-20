@@ -13,7 +13,10 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf dist coverage node_modules",
-    "publish:npm": "pnpm build && pnpm publish"
+    "publish:npm": "pnpm build && pnpm publish",
+    "version:patch": "pnpm version patch",
+    "version:minor": "pnpm version minor",
+    "version:major": "pnpm version major"
   },
   "keywords": [
     "orm",
