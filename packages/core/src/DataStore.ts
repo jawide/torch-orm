@@ -39,20 +39,15 @@ export class DataStore<T> {
     return this.adapter.clear(this.collection);
   }
 
-  async get(id: string): Promise<T> {
-    const results = await this.adapter.find<T>(this.collection, {
+  async get(id: string): Promise<any> {
+    const results = await this.adapter.find(this.collection, {
       [this.idAttribute]: id,
     });
-    return results[0];
+    return (results[0] as any)?.value;
   }
 
-  async set(id: string, data: T): Promise<void> {
-    await this.adapter.update<T>(
-      this.collection,
-      {
-        [this.idAttribute]: id,
-      },
-      data
-    );
+  async set(id: string, value: any): Promise<void> {
+    await this.delete({ where: { [this.idAttribute]: id } as any });
+    await this.adapter.create(this.collection, { [this.idAttribute]: id, value });
   }
 }

@@ -9,6 +9,7 @@
     "clean": "pnpm -r clean",
     "publish:npm": "pnpm build && pnpm -r publish",
     "test:all": "jest",
+    "test:core": "jest --testPathPattern=tests/core",
     "test:map": "jest --testPathPattern=tests/map",
     "test:localstorage": "jest --testPathPattern=tests/localstorage",
     "test:sqlite": "jest --testPathPattern=tests/sqlite",
