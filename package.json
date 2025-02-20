@@ -5,7 +5,7 @@
   "description": "A lightweight ORM library for browser and Node.js with adapter pattern",
   "type": "module",
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm --filter @torch-orm/core build && pnpm -r build",
     "clean": "pnpm -r clean",
     "version:patch": "pnpm -r version:patch",
     "version:minor": "pnpm -r version:minor",
