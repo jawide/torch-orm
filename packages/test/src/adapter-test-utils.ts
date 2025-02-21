@@ -1,4 +1,5 @@
 import { DataAdapter } from "@torch-orm/core";
+import { TestFunctions } from "./types";
 
 interface TestUser {
   id: number;
@@ -25,9 +26,12 @@ const testPost: TestPost = {
 export function runAdapterTests(
   adapterName: string,
   createAdapter: () => DataAdapter,
+  testFunctions: TestFunctions,
   beforeEachCallback?: () => void | Promise<void>,
   afterAllCallback?: () => void | Promise<void>
 ) {
+  const { describe, it, beforeEach, afterAll, expect } = testFunctions;
+
   describe(adapterName, () => {
     let adapter: DataAdapter;
 

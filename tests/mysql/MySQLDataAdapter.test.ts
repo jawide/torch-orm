@@ -1,6 +1,7 @@
 import { MySQLDataAdapter, MySQLDataAdapterOptions } from "@torch-orm/mysql";
 import { runAdapterTests } from "@torch-orm/test";
 import { config } from "dotenv";
+import { describe, it, beforeEach, afterAll, expect } from "@jest/globals";
 
 // 加载环境变量
 config();
@@ -89,6 +90,13 @@ afterAll(async () => {
 runAdapterTests(
   "MySQLDataAdapter",
   () => adapter,
+  {
+    describe,
+    it,
+    beforeEach,
+    afterAll,
+    expect: expect as any,
+  },
   async () => {
     // 清理所有表
     const connection = await adapter.pool.getConnection();

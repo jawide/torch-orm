@@ -201,3 +201,53 @@ packages/
 ## 许可证
 
 MIT 
+
+### 测试适配器
+
+如果你要开发自己的适配器，可以使用 `@torch-orm/test` 包来测试你的适配器是否符合规范。该测试工具支持多种测试框架，例如 Jest 和 Vitest：
+
+```typescript
+// 使用 Jest
+import { runAdapterTests } from "@torch-orm/test";
+import { describe, test, beforeEach, afterAll, expect } from "@jest/globals";
+import { YourDataAdapter } from "./YourDataAdapter";
+
+describe("YourDataAdapter Tests", () => {
+  runAdapterTests(
+    "YourDataAdapter",
+    () => new YourDataAdapter(),
+    { describe, test, beforeEach, afterAll, expect },
+    // 可选的 beforeEach 回调
+    async () => {
+      // 在每个测试前执行的操作
+    },
+    // 可选的 afterAll 回调
+    async () => {
+      // 在所有测试完成后执行的操作
+    }
+  );
+});
+
+// 使用 Vitest
+import { runAdapterTests } from "@torch-orm/test";
+import { describe, test, beforeEach, afterAll, expect } from "vitest";
+import { YourDataAdapter } from "./YourDataAdapter";
+
+describe("YourDataAdapter Tests", () => {
+  runAdapterTests(
+    "YourDataAdapter",
+    () => new YourDataAdapter(),
+    { describe, test, beforeEach, afterAll, expect }
+  );
+});
+```
+
+确保在你的项目中安装了必要的依赖：
+
+```bash
+# 使用 Jest
+pnpm add -D jest @jest/globals @torch-orm/test
+
+# 使用 Vitest
+pnpm add -D vitest @torch-orm/test
+``` 

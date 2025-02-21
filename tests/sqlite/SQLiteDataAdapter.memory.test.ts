@@ -1,5 +1,6 @@
 import { SQLiteDataAdapter } from "@torch-orm/sqlite";
 import { runAdapterTests } from "@torch-orm/test";
+import { describe, it, beforeEach, afterAll, expect } from "@jest/globals";
 
 runAdapterTests(
   "SQLiteDataAdapter",
@@ -17,5 +18,6 @@ runAdapterTests(
           title: "string",
         },
       },
-    })
+    }),
+  { describe, it, beforeEach, afterAll, expect: expect as any }
 );
