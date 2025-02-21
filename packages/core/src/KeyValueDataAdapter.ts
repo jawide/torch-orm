@@ -107,7 +107,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
       await this.removeValue(this.getKey(collection, id));
       await this.setIndex(
         this.getIndexKey(collection),
-        index.filter((id) => id !== id)
+        index.filter((_id) => _id !== id)
       );
     } else {
       const entities = await Promise.all(index.map((id) => this.getValue<any>(this.getKey(collection, id))));

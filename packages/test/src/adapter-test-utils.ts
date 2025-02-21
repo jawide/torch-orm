@@ -134,7 +134,7 @@ export function runAdapterTests(
 
       it("should delete single entity", async () => {
         await adapter.delete("users", { where: { id: 1 } });
-        const results = await adapter.find("users", { where: { id: 2 } });
+        const results = await adapter.find("users");
         expect(results).toHaveLength(1);
       });
     });
