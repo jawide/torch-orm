@@ -20,23 +20,24 @@
     "orm",
     "database",
     "typescript",
-    "test",
+    "browser",
+    "localstorage",
     "adapter"
   ],
   "author": "jawide",
   "license": "MIT",
   "dependencies": {
-    "@jest/globals": "^29.7.0"
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.12",
     "@types/node": "^20.11.24",
+    "@types/jest": "^29.5.12",
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
   },
   "peerDependencies": {
-    "@torch-orm/core": "workspace:^",
-    "jest": "^29.7.0"
+    "@torch-orm/core": "workspace:^"
   },
   "publishConfig": {
     "access": "public"

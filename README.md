@@ -173,71 +173,31 @@ await adapter.close();
 
 ## 开发
 
-### 安装依赖
-
 ```bash
 # 安装依赖
 pnpm install
-```
 
-### 运行测试
-
-```bash
-# 运行所有测试
+# 运行测试
 pnpm test
 
-# 运行特定包的测试
-pnpm test:core
-pnpm test:map
-pnpm test:localstorage
-pnpm test:sqlite
-pnpm test:mysql
-```
-
-### 测试适配器
-
-如果你要开发自己的适配器，可以使用 `@torch-orm/test` 包来测试你的适配器是否符合规范：
-
-```typescript
-import { runAdapterTests } from "@torch-orm/test";
-import { YourDataAdapter } from "./YourDataAdapter";
-
-describe("YourDataAdapter", () => {
-  runAdapterTests(
-    "YourDataAdapter",
-    () => new YourDataAdapter(),
-    // 可选的 beforeEach 回调
-    async () => {
-      // 在每个测试前执行的操作
-    },
-    // 可选的 afterAll 回调
-    async () => {
-      // 在所有测试完成后执行的操作
-    }
-  );
-});
-```
-
-确保在你的项目中安装了必要的依赖：
-
-```bash
-pnpm add -D jest @torch-orm/test
-```
-
-### 构建
-
-```bash
-# 构建所有包
+# 构建
 pnpm build
-```
 
-### 清理
-
-```bash
-# 清理构建产物和依赖
+# 清理
 pnpm clean
 ```
 
 ## 项目结构
 
 ```
+packages/
+  ├── core/           # 核心包
+  ├── localstorage/   # LocalStorage 适配器
+  ├── sqlite/         # SQLite 适配器
+  ├── mysql/          # MySQL 适配器
+  └── test/           # 测试工具包
+```
+
+## 许可证
+
+MIT 
