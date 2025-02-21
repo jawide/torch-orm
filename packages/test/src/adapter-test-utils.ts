@@ -110,6 +110,7 @@ export function runAdapterTests(
     describe("delete", () => {
       beforeEach(async () => {
         await adapter.create("users", testUser);
+        await adapter.create("users", { ...testUser, id: 2 });
       });
 
       it("should delete an entity", async () => {
@@ -120,6 +121,12 @@ export function runAdapterTests(
 
       it("should not throw when deleting non-existent entity", async () => {
         await expect(adapter.delete("users", { where: { id: 999 } })).resolves.not.toThrow();
+      });
+
+      it("should delete single entity", async () => {
+        await adapter.delete("users", { where: { id: 1 } });
+        const results = await adapter.find("users", { where: { id: 2 } });
+        expect(results).toHaveLength(1);
       });
     });
 
