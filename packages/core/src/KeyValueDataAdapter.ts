@@ -72,7 +72,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
       throw new Error(`Entity with id ${id} already exists`);
     }
     index.push(id);
-    await this.setIndex(collection, index);
+    await this.setIndex(this.getIndexKey(collection), index);
     await this.setValue(this.getKey(collection, id), data);
   }
 
@@ -106,7 +106,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
       const id = (query!.where as any)[this.idAttribute];
       await this.removeValue(this.getKey(collection, id));
       await this.setIndex(
-        collection,
+        this.getIndexKey(collection),
         index.filter((id) => id !== id)
       );
     } else {
@@ -120,7 +120,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
         await this.removeValue(this.getKey(collection, id));
       }
       await this.setIndex(
-        collection,
+        this.getIndexKey(collection),
         index.filter((id) => !filteredEntities.some((entity) => (entity as any)[this.idAttribute] === id))
       );
     }
@@ -129,6 +129,6 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   public async clear(collection: string): Promise<void> {
     const index = await this.getIndex(this.getIndexKey(collection));
     await Promise.all(index.map((id) => this.removeValue(this.getKey(collection, id))));
-    await this.removeIndex(collection);
+    await this.removeIndex(this.getIndexKey(collection));
   }
 }
