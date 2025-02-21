@@ -46,7 +46,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   }
 
   public async find<T>(collection: string, query?: Query<T>): Promise<T[]> {
-    const index = await this.getIndex(collection);
+    const index = await this.getIndex(this.getIndexKey(collection));
     const whereLength = Object.keys(query?.where ?? {}).length;
     if (whereLength === 1 && (query!.where as any)[this.idAttribute]) {
       const id = (query!.where as any)[this.idAttribute];
@@ -67,7 +67,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
     if (!id) {
       throw new Error(`Entity must have an ${this.idAttribute}`);
     }
-    const index = await this.getIndex(collection);
+    const index = await this.getIndex(this.getIndexKey(collection));
     if (index.includes(id)) {
       throw new Error(`Entity with id ${id} already exists`);
     }
@@ -77,7 +77,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   }
 
   public async update<T>(collection: string, query: Query<T>, data: Partial<T>): Promise<void> {
-    const index = await this.getIndex(collection);
+    const index = await this.getIndex(this.getIndexKey(collection));
     const whereLength = Object.keys(query?.where ?? {}).length;
     if (whereLength == 1 && (query!.where as any)[this.idAttribute]) {
       const id = (query!.where as any)[this.idAttribute];
@@ -100,7 +100,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   }
 
   public async delete(collection: string, query: Query<any>): Promise<void> {
-    const index = await this.getIndex(collection);
+    const index = await this.getIndex(this.getIndexKey(collection));
     const whereLength = Object.keys(query?.where ?? {}).length;
     if (whereLength == 1 && (query!.where as any)[this.idAttribute]) {
       const id = (query!.where as any)[this.idAttribute];
@@ -127,7 +127,7 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   }
 
   public async clear(collection: string): Promise<void> {
-    const index = await this.getIndex(collection);
+    const index = await this.getIndex(this.getIndexKey(collection));
     await Promise.all(index.map((id) => this.removeValue(this.getKey(collection, id))));
     await this.removeIndex(collection);
   }
