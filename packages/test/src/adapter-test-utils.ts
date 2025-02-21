@@ -1,23 +1,24 @@
 import { DataAdapter } from "@torch-orm/core";
+import { describe, it, expect, beforeEach, afterAll } from "@jest/globals";
 
-interface TestUser {
+export interface TestUser {
   id: number;
   name: string;
   age: number;
 }
 
-interface TestPost {
+export interface TestPost {
   id: number;
   title: string;
 }
 
-const testUser: TestUser = {
+export const testUser: TestUser = {
   id: 1,
   name: "John Doe",
   age: 30,
 };
 
-const testPost: TestPost = {
+export const testPost: TestPost = {
   id: 1,
   title: "Test Post",
 };
