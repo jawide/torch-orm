@@ -16,7 +16,7 @@ export abstract class SQLDataAdapter implements DataAdapter {
     await this.execSQL(`
       CREATE TABLE IF NOT EXISTS ${collection} (
         ${Object.entries(this.tables[collection])
-          .map(([key, type]) => `${key} ${this.typeMap[type]}`)
+          .map(([key, type]) => `${key} ${this.typeMap[type]} ${this.idAttribute === key ? "PRIMARY KEY" : ""}`)
           .join(", ")}
       )
     `);
@@ -55,12 +55,16 @@ export abstract class SQLDataAdapter implements DataAdapter {
         throw new Error(`Entity must have an ${this.idAttribute}`);
       }
       await this.ensureTable(collection);
-      await this.execSQL(
-        `INSERT INTO ${collection} (${Object.keys(data as any).join(", ")}) VALUES (${Object.keys(data as any)
-          .map(() => "?")
-          .join(", ")})`,
-        Object.values(data as any)
-      );
+      try {
+        await this.execSQL(
+          `INSERT INTO ${collection} (${Object.keys(data as any).join(", ")}) VALUES (${Object.keys(data as any)
+            .map(() => "?")
+            .join(", ")})`,
+          Object.values(data as any)
+        );
+      } catch (error) {
+        throw new Error(`Entity with id ${id} already exists`);
+      }
     } finally {
       this.after(collection);
     }

@@ -68,6 +68,9 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
       throw new Error(`Entity must have an ${this.idAttribute}`);
     }
     const index = await this.getIndex(collection);
+    if (index.includes(id)) {
+      throw new Error(`Entity with id ${id} already exists`);
+    }
     index.push(id);
     await this.setIndex(collection, index);
     await this.setValue(this.getKey(collection, id), data);

@@ -55,6 +55,11 @@ export function runAdapterTests(
         const invalidUser = { name: "John Doe", age: 30 } as TestUser;
         await expect(adapter.create("users", invalidUser)).rejects.toThrow("Entity must have an id");
       });
+
+      it("should throw error when creating entity with same id", async () => {
+        await adapter.create("users", testUser);
+        await expect(adapter.create("users", testUser)).rejects.toThrow("Entity with id 1 already exists");
+      });
     });
 
     describe("find", () => {
