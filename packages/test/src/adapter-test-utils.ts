@@ -26,11 +26,11 @@ const testPost: TestPost = {
 export function runAdapterTests(
   adapterName: string,
   createAdapter: () => DataAdapter,
-  testFunctions: TestFunctions,
+  testFunctions: any,
   beforeEachCallback?: () => void | Promise<void>,
   afterAllCallback?: () => void | Promise<void>
 ) {
-  const { describe, it, beforeEach, afterAll, expect } = testFunctions;
+  const { describe, it, beforeEach, afterAll, expect } = testFunctions as TestFunctions;
 
   describe(adapterName, () => {
     let adapter: DataAdapter;
