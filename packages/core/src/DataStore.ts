@@ -41,7 +41,7 @@ export class DataStore<T> {
 
   async get(id: string): Promise<any> {
     const results = await this.adapter.find(this.collection, {
-      [this.idAttribute]: id,
+      where: { [this.idAttribute]: id },
     });
     return (results[0] as any)?.value;
   }

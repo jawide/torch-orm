@@ -73,6 +73,12 @@ export function runAdapterTests(
         await adapter.create("users", { id: 3, name: "Bob Smith", age: 35 });
       });
 
+      it("should find specific entity", async () => {
+        const results = await adapter.find("users", { where: { id: 3 } });
+        expect(results).toHaveLength(1);
+        expect(results[0]).toEqual({ id: 3, name: "Bob Smith", age: 35 });
+      });
+
       it("should find all entities without query", async () => {
         const results = await adapter.find("users");
         expect(results).toHaveLength(3);
