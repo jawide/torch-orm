@@ -15,6 +15,13 @@ describe("get and set", () => {
     expect(result).toBe(undefined);
   });
 
+  it("get specific entity", async () => {
+    await store.set("user1", { id: 1, name: "user1" });
+    await store.set("user2", { id: 2, name: "user2" });
+    const result = await store.get("user2");
+    expect(result).toEqual({ id: 2, name: "user2" });
+  });
+
   it("set boolean", async () => {
     await store.set("enable", true);
     const result = await store.get("enable");
