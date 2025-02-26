@@ -23,8 +23,9 @@ export class DataStore<T> {
     return this.adapter.find<T>(this.collection, query);
   }
 
-  async create(data: T): Promise<void> {
+  async create(data: T): Promise<T> {
     await this.adapter.create<T>(this.collection, data);
+    return data;
   }
 
   async update(query: Query<T>, data: Partial<T>): Promise<void> {
