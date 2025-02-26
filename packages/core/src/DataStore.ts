@@ -40,15 +40,16 @@ export class DataStore<T> {
     return this.adapter.clear(this.collection);
   }
 
-  async get(id: string): Promise<any> {
+  async get<K extends keyof T>(id: K): Promise<T[K]> {
     const results = await this.adapter.find(this.collection, {
       where: { [this.idAttribute]: id },
     });
     return (results[0] as any)?.value;
   }
 
-  async set(id: string, value: any): Promise<void> {
+  async set<K extends keyof T>(id: K, value: T[K]): Promise<T[K]> {
     await this.delete({ where: { [this.idAttribute]: id } as any });
     await this.adapter.create(this.collection, { [this.idAttribute]: id, value });
+    return value;
   }
 }
