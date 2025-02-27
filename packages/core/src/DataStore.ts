@@ -52,4 +52,8 @@ export class DataStore<T> {
     await this.adapter.create(this.collection, { [this.idAttribute]: id, value });
     return value;
   }
+
+  async exists(query: Query<T> = {}): Promise<boolean> {
+    return (await this.find(query)).length > 0;
+  }
 }
