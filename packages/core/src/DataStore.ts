@@ -1,6 +1,9 @@
 import { DataAdapter } from "./DataAdapter";
 import { Query } from "./Query";
 
+type KeyOf<T> = unknown extends T ? unknown : keyof T;
+type ValueOf<T> = unknown extends T ? unknown : T[keyof T];
+
 export interface DataStoreOptions {
   adapter: DataAdapter;
   collection: string;
@@ -19,7 +22,7 @@ export class DataStore<T> {
     this.adapter.idAttribute = this.idAttribute;
   }
 
-  async find(query: Query<T> = {}): Promise<T[]> {
+  async find(query?: Query<T>): Promise<T[]> {
     return this.adapter.find<T>(this.collection, query);
   }
 
@@ -40,20 +43,20 @@ export class DataStore<T> {
     return this.adapter.clear(this.collection);
   }
 
-  async get<K extends keyof T>(id: K): Promise<T[K]> {
+  async get(id: KeyOf<T>): Promise<ValueOf<T>> {
     const results = await this.adapter.find(this.collection, {
       where: { [this.idAttribute]: id },
     });
     return (results[0] as any)?.value;
   }
 
-  async set<K extends keyof T>(id: K, value: T[K]): Promise<T[K]> {
+  async set(id: KeyOf<T>, value: ValueOf<T>): Promise<ValueOf<T>> {
     await this.delete({ where: { [this.idAttribute]: id } as any });
     await this.adapter.create(this.collection, { [this.idAttribute]: id, value });
     return value;
   }
 
-  async exists(query: Query<T> = {}): Promise<boolean> {
+  async exists(query?: Query<T>): Promise<boolean> {
     return (await this.find(query)).length > 0;
   }
 }
