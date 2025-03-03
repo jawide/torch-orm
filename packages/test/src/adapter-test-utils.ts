@@ -64,6 +64,11 @@ export function runAdapterTests(
         await adapter.create("users", testUser);
         await expect(adapter.create("users", testUser)).rejects.toThrow("Entity with id 1 already exists");
       });
+
+      it("should safe when creating entity with unexpected property", async () => {
+        const invalidUser = { id: 2, name: "John Doe", age: 30, unknownProperty: "unknown" } as TestUser;
+        await expect(adapter.create("users", invalidUser)).resolves.not.toThrow();
+      });
     });
 
     describe("find", () => {
@@ -108,6 +113,10 @@ export function runAdapterTests(
         const results = await adapter.find("users", { limit: 2 });
         expect(results).toHaveLength(2);
       });
+
+      it("should safe when finding entity with unexpected property", async () => {
+        expect(adapter.find("users", { where: { unknownProperty: "unknown" } })).resolves.not.toThrow();
+      });
     });
 
     describe("update", () => {
@@ -119,6 +128,12 @@ export function runAdapterTests(
         await adapter.update<TestUser>("users", { where: { id: 1 } }, { age: 31 });
         const updated = (await adapter.find<TestUser>("users", { where: { id: 1 } }))[0];
         expect(updated).toEqual({ ...testUser, age: 31 });
+      });
+
+      it("should safe when updating entity with unexpected property", async () => {
+        expect(
+          adapter.update<TestUser>("users", { where: { id: 1 } }, { name: "test", unknownProperty: "unknown" } as any)
+        ).resolves.not.toThrow();
       });
     });
 
@@ -142,6 +157,10 @@ export function runAdapterTests(
         await adapter.delete("users", { where: { id: 1 } });
         const results = await adapter.find("users");
         expect(results).toHaveLength(1);
+      });
+
+      it("should safe when deleting entity with unexpected property", async () => {
+        expect(adapter.delete("users", { where: { unknownProperty: "unknown" } as any })).resolves.not.toThrow();
       });
     });
 

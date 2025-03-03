@@ -23,30 +23,27 @@ export abstract class SQLDataAdapter implements DataAdapter {
   }
 
   public async find<T>(collection: string, query?: Query<T>): Promise<T[]> {
+    const validWhere = Object.keys(query?.where ?? {}).filter((key) => this.tables[collection][key]);
+    const validSort = Object.keys(query?.sort ?? {}).filter((key) => this.tables[collection][key]);
+
     try {
       await this.before(collection);
       await this.ensureTable(collection);
       return this.querySQL(
         `SELECT * FROM ${collection} ${
-          query?.where
-            ? `WHERE ${Object.keys(query.where)
-                .map((key) => `${key} = ?`)
-                .join(" AND ")}`
-            : ""
+          validWhere.length > 0 ? `WHERE ${validWhere.map((key) => `${key} = ?`).join(" AND ")}` : ""
         } ${
-          query?.sort
-            ? `ORDER BY ${Object.keys(query.sort)
-                .map((key) => `${key} ${query.sort![key]}`)
-                .join(", ")}`
-            : ""
+          validSort.length > 0 ? `ORDER BY ${validSort.map((key) => `${key} ${query?.sort![key]}`).join(", ")}` : ""
         } ${query?.limit ? `LIMIT ${query.limit}` : ""}`,
-        Object.values(query?.where ?? {})
+        validWhere.map((key) => (query?.where as any)[key])
       );
     } finally {
       await this.after(collection);
     }
   }
   public async create<T>(collection: string, data: T): Promise<void> {
+    const validData = Object.keys(data as any).filter((key) => this.tables[collection][key]);
+
     try {
       await this.before(collection);
       await this.ensureTable(collection);
@@ -57,10 +54,8 @@ export abstract class SQLDataAdapter implements DataAdapter {
       await this.ensureTable(collection);
       try {
         await this.execSQL(
-          `INSERT INTO ${collection} (${Object.keys(data as any).join(", ")}) VALUES (${Object.keys(data as any)
-            .map(() => "?")
-            .join(", ")})`,
-          Object.values(data as any)
+          `INSERT INTO ${collection} (${validData.join(", ")}) VALUES (${validData.map(() => "?").join(", ")})`,
+          validData.map((key) => (data as any)[key])
         );
       } catch (error) {
         throw new Error(`Entity with id ${id} already exists`);
@@ -70,30 +65,34 @@ export abstract class SQLDataAdapter implements DataAdapter {
     }
   }
   public async update<T>(collection: string, query: Query<T>, data: Partial<T>): Promise<void> {
+    const validData = Object.keys(data as any).filter((key) => this.tables[collection][key]);
+    const validWhere = Object.keys(query.where as any).filter((key) => this.tables[collection][key]);
+
     try {
       await this.before(collection);
       await this.ensureTable(collection);
+
       await this.execSQL(
-        `UPDATE ${collection} ${Object.keys(data)
-          .map((key) => `SET ${key} = ?`)
-          .join(", ")} WHERE ${Object.keys(query.where as any)
+        `UPDATE ${collection} ${validData.map((key) => `SET ${key} = ?`).join(", ")} WHERE ${validWhere
           .map((key) => `${key} = ?`)
           .join(" AND ")}`,
-        [...Object.values(data), ...Object.values(query.where as any)]
+        [...validData.map((key) => (data as any)[key]), ...validWhere.map((key) => (query.where as any)[key])]
       );
     } finally {
       await this.after(collection);
     }
   }
   public async delete<T>(collection: string, query: Query<T>): Promise<void> {
+    const validWhere = Object.keys(query.where as any).filter((key) => this.tables[collection][key]);
+
     try {
       await this.before(collection);
       await this.ensureTable(collection);
       await this.execSQL(
-        `DELETE FROM ${collection} WHERE ${Object.keys(query.where as any)
-          .map((key) => `${key} = ?`)
-          .join(" AND ")}`,
-        Object.values(query.where as any)
+        `DELETE FROM ${collection} ${
+          validWhere.length > 0 ? `WHERE ${validWhere.map((key) => `${key} = ?`).join(" AND ")}` : ""
+        }`,
+        validWhere.map((key) => (query.where as any)[key])
       );
     } finally {
       await this.after(collection);
