@@ -43,13 +43,13 @@ export abstract class SQLDataAdapter implements DataAdapter {
         Object.values(query?.where ?? {})
       );
     } finally {
-      this.after(collection);
+      await this.after(collection);
     }
   }
   public async create<T>(collection: string, data: T): Promise<void> {
     try {
       await this.before(collection);
-      this.ensureTable(collection);
+      await this.ensureTable(collection);
       const id = (data as any)[this.idAttribute];
       if (!id) {
         throw new Error(`Entity must have an ${this.idAttribute}`);
@@ -66,13 +66,13 @@ export abstract class SQLDataAdapter implements DataAdapter {
         throw new Error(`Entity with id ${id} already exists`);
       }
     } finally {
-      this.after(collection);
+      await this.after(collection);
     }
   }
   public async update<T>(collection: string, query: Query<T>, data: Partial<T>): Promise<void> {
     try {
       await this.before(collection);
-      this.ensureTable(collection);
+      await this.ensureTable(collection);
       await this.execSQL(
         `UPDATE ${collection} ${Object.keys(data)
           .map((key) => `SET ${key} = ?`)
@@ -82,13 +82,13 @@ export abstract class SQLDataAdapter implements DataAdapter {
         [...Object.values(data), ...Object.values(query.where as any)]
       );
     } finally {
-      this.after(collection);
+      await this.after(collection);
     }
   }
   public async delete<T>(collection: string, query: Query<T>): Promise<void> {
     try {
       await this.before(collection);
-      this.ensureTable(collection);
+      await this.ensureTable(collection);
       await this.execSQL(
         `DELETE FROM ${collection} WHERE ${Object.keys(query.where as any)
           .map((key) => `${key} = ?`)
@@ -96,16 +96,16 @@ export abstract class SQLDataAdapter implements DataAdapter {
         Object.values(query.where as any)
       );
     } finally {
-      this.after(collection);
+      await this.after(collection);
     }
   }
   public async clear(collection: string): Promise<void> {
     try {
       await this.before(collection);
-      this.ensureTable(collection);
+      await this.ensureTable(collection);
       await this.execSQL(`DELETE FROM ${collection}`);
     } finally {
-      this.after(collection);
+      await this.after(collection);
     }
   }
 }
