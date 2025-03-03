@@ -62,7 +62,7 @@ export function runAdapterTests(
 
       it("should throw error when creating entity with same id", async () => {
         await adapter.create("users", testUser);
-        await expect(adapter.create("users", testUser)).rejects.toThrow("Entity with id 1 already exists");
+        await expect(adapter.create("users", testUser)).rejects.toThrow(/Entity create failed/);
       });
 
       it("should safe when creating entity with unexpected property", async () => {

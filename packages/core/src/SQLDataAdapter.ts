@@ -58,7 +58,7 @@ export abstract class SQLDataAdapter implements DataAdapter {
           validData.map((key) => (data as any)[key])
         );
       } catch (error) {
-        throw new Error(`Entity with id ${id} already exists`);
+        throw new Error(`Entity create failed ${error}`);
       }
     } finally {
       await this.after(collection);

@@ -14,7 +14,7 @@ export type ExpectFunction = {
       };
     };
     rejects: {
-      toThrow: (message: string) => Promise<void>;
+      toThrow: (message: string | RegExp) => Promise<void>;
     };
   };
 } & {
