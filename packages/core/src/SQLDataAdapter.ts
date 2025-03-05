@@ -73,7 +73,7 @@ export abstract class SQLDataAdapter implements DataAdapter {
       await this.ensureTable(collection);
 
       await this.execSQL(
-        `UPDATE ${collection} ${validData.map((key) => `SET ${key} = ?`).join(", ")} WHERE ${validWhere
+        `UPDATE ${collection} SET ${validData.map((key) => `${key} = ?`).join(", ")} WHERE ${validWhere
           .map((key) => `${key} = ?`)
           .join(" AND ")}`,
         [...validData.map((key) => (data as any)[key]), ...validWhere.map((key) => (query.where as any)[key])]

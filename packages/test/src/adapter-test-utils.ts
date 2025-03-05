@@ -125,9 +125,9 @@ export function runAdapterTests(
       });
 
       it("should update an entity", async () => {
-        await adapter.update<TestUser>("users", { where: { id: 1 } }, { age: 31 });
+        await adapter.update<TestUser>("users", { where: { id: 1 } }, { name: "Mike", age: 31 });
         const updated = (await adapter.find<TestUser>("users", { where: { id: 1 } }))[0];
-        expect(updated).toEqual({ ...testUser, age: 31 });
+        expect(updated).toEqual({ ...testUser, name: "Mike", age: 31 });
       });
 
       it("should safe when updating entity with unexpected property", async () => {
