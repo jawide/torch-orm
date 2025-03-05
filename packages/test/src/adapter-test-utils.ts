@@ -117,6 +117,10 @@ export function runAdapterTests(
       it("should safe when finding entity with unexpected property", async () => {
         expect(adapter.find("users", { where: { unknownProperty: "unknown" } })).resolves.not.toThrow();
       });
+
+      it("should safe when finding entity value is undefined", async () => {
+        expect(adapter.find("users", { where: { age: undefined } })).resolves.not.toThrow();
+      });
     });
 
     describe("update", () => {

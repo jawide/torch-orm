@@ -23,7 +23,9 @@ export abstract class SQLDataAdapter implements DataAdapter {
   }
 
   public async find<T>(collection: string, query?: Query<T>): Promise<T[]> {
-    const validWhere = Object.keys(query?.where ?? {}).filter((key) => this.tables[collection][key]);
+    const validWhere = Object.keys(query?.where ?? {}).filter(
+      (key) => this.tables[collection][key] && ((query?.where as any) ?? [])![key] !== undefined
+    );
     const validSort = Object.keys(query?.sort ?? {}).filter((key) => this.tables[collection][key]);
 
     try {
@@ -42,7 +44,9 @@ export abstract class SQLDataAdapter implements DataAdapter {
     }
   }
   public async create<T>(collection: string, data: T): Promise<void> {
-    const validData = Object.keys(data as any).filter((key) => this.tables[collection][key]);
+    const validData = Object.keys(data as any).filter(
+      (key) => this.tables[collection][key] && (data as any)[key] !== undefined
+    );
 
     try {
       await this.before(collection);
@@ -65,8 +69,12 @@ export abstract class SQLDataAdapter implements DataAdapter {
     }
   }
   public async update<T>(collection: string, query: Query<T>, data: Partial<T>): Promise<void> {
-    const validData = Object.keys(data as any).filter((key) => this.tables[collection][key]);
-    const validWhere = Object.keys(query.where as any).filter((key) => this.tables[collection][key]);
+    const validData = Object.keys(data as any).filter(
+      (key) => this.tables[collection][key] && (data as any)[key] !== undefined
+    );
+    const validWhere = Object.keys(query?.where ?? {}).filter(
+      (key) => this.tables[collection][key] && ((query?.where as any) ?? [])![key] !== undefined
+    );
 
     try {
       await this.before(collection);
@@ -83,7 +91,9 @@ export abstract class SQLDataAdapter implements DataAdapter {
     }
   }
   public async delete<T>(collection: string, query: Query<T>): Promise<void> {
-    const validWhere = Object.keys(query.where as any).filter((key) => this.tables[collection][key]);
+    const validWhere = Object.keys(query?.where ?? {}).filter(
+      (key) => this.tables[collection][key] && ((query?.where as any) ?? [])![key] !== undefined
+    );
 
     try {
       await this.before(collection);
