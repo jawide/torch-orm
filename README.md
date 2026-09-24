@@ -68,6 +68,7 @@ await userStore.delete(1);
   - `options.idAttribute`: 自定义 ID 字段名称（可选，默认为 "id"）
 
 - `find(query?: Query): Promise<T[]>`
+- `count(query?: Query): Promise<number>`
 - `create(data: T): Promise<T>`
 - `update(id: string | number, data: Partial<T>): Promise<T>`
 - `delete(id: string | number): Promise<void>`

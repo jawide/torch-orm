@@ -41,23 +41,28 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
     return result;
   }
 
-  public async find<T>(collection: string, query?: Query<T>): Promise<T[]> {
-    const index = await this.getIndex(this.getIndexKey(collection));
-    const whereLength = Object.keys(query?.where ?? {}).length;
-    if (whereLength === 1 && (query!.where as any)[this.idAttribute]) {
-      const id = (query!.where as any)[this.idAttribute];
-      const entity = await this.getValue<T>(this.getKey(collection, id));
-      if (entity) {
-        return [entity];
-      } else {
-        return [];
-      }
-    } else {
-      const entities = await Promise.all(index.map((id) => this.getValue<T>(this.getKey(collection, id))));
-      const result = this.filterEntities(entities, query!);
-      const offset = query?.offset ?? 0;
-      return query?.limit === undefined ? result.slice(offset) : result.slice(offset, offset + query.limit);
+  public async loadEntities<T>(collection: string, query?: Query<T>): Promise<T[]> {
+    const where = query?.where;
+    if (Object.keys(where ?? {}).length === 1 && (where as any)[this.idAttribute]) {
+      const entity = await this.getValue<T>(this.getKey(collection, (where as any)[this.idAttribute]));
+      return entity ? [entity] : [];
     }
+    const index = await this.getIndex(this.getIndexKey(collection));
+    return Promise.all(index.map((id) => this.getValue<T>(this.getKey(collection, id))));
+  }
+
+  public async find<T>(collection: string, query?: Query<T>): Promise<T[]> {
+    const result = this.filterEntities(await this.loadEntities(collection, query), query);
+    const offset = query?.offset ?? 0;
+    return query?.limit === undefined ? result.slice(offset) : result.slice(offset, offset + query.limit);
+  }
+
+  public async count<T>(collection: string, query?: Query<T>): Promise<number> {
+    const where = query?.where;
+    if (Object.keys(where ?? {}).length === 1 && (where as any)[this.idAttribute]) {
+      return (await this.getValue(this.getKey(collection, (where as any)[this.idAttribute]))) ? 1 : 0;
+    }
+    return this.filterEntities(await this.loadEntities(collection, query), query).length;
   }
 
   public async create<T>(collection: string, data: T): Promise<void> {
@@ -75,53 +80,36 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
   }
 
   public async update<T>(collection: string, query: Query<T>, data: Partial<T>): Promise<void> {
-    const index = await this.getIndex(this.getIndexKey(collection));
-    const whereLength = Object.keys(query?.where ?? {}).length;
-    if (whereLength == 1 && (query!.where as any)[this.idAttribute]) {
-      const id = (query!.where as any)[this.idAttribute];
-      let entity = await this.getValue<T>(this.getKey(collection, id));
-      if (entity) {
-        entity = { ...entity, ...data };
-        await this.setValue(this.getKey(collection, id), entity);
+    if (Object.keys(query?.where ?? {}).length === 0) {
+      throw new Error(`Entity update requires a where clause, use clear() to remove all`);
+    }
+    const entities = this.filterEntities(await this.loadEntities(collection, query), query);
+    for (const entity of entities) {
+      const id = (entity as any)[this.idAttribute];
+      if (!id) {
+        throw new Error(`Entity must have an ${this.idAttribute}`);
       }
-    } else {
-      const entities = await Promise.all(index.map((id) => this.getValue<T>(this.getKey(collection, id))));
-      const filteredEntities = this.filterEntities(entities, query);
-      for (const entity of filteredEntities) {
-        const id = (entity as any)[this.idAttribute];
-        if (!id) {
-          throw new Error(`Entity must have an ${this.idAttribute}`);
-        }
-        await this.setValue(this.getKey(collection, id), { ...entity, ...data });
-      }
+      await this.setValue(this.getKey(collection, id), { ...entity, ...data });
     }
   }
 
   public async delete(collection: string, query: Query<any>): Promise<void> {
-    const index = await this.getIndex(this.getIndexKey(collection));
-    const whereLength = Object.keys(query?.where ?? {}).length;
-    if (whereLength == 1 && (query!.where as any)[this.idAttribute]) {
-      const id = (query!.where as any)[this.idAttribute];
-      await this.removeValue(this.getKey(collection, id));
-      await this.setIndex(
-        this.getIndexKey(collection),
-        index.filter((_id) => _id !== id)
-      );
-    } else {
-      const entities = await Promise.all(index.map((id) => this.getValue<any>(this.getKey(collection, id))));
-      const filteredEntities = this.filterEntities(entities, query);
-      for (const entity of filteredEntities) {
-        const id = (entity as any)[this.idAttribute];
-        if (!id) {
-          throw new Error(`Entity must have an ${this.idAttribute}`);
-        }
-        await this.removeValue(this.getKey(collection, id));
-      }
-      await this.setIndex(
-        this.getIndexKey(collection),
-        index.filter((id) => !filteredEntities.some((entity) => (entity as any)[this.idAttribute] === id))
-      );
+    if (Object.keys(query?.where ?? {}).length === 0) {
+      throw new Error(`Entity delete requires a where clause, use clear() to remove all`);
     }
+    const index = await this.getIndex(this.getIndexKey(collection));
+    const entities = this.filterEntities(await this.loadEntities(collection, query), query);
+    for (const entity of entities) {
+      const id = (entity as any)[this.idAttribute];
+      if (!id) {
+        throw new Error(`Entity must have an ${this.idAttribute}`);
+      }
+      await this.removeValue(this.getKey(collection, id));
+    }
+    await this.setIndex(
+      this.getIndexKey(collection),
+      index.filter((id) => !entities.some((entity) => (entity as any)[this.idAttribute] === id))
+    );
   }
 
   public async clear(collection: string): Promise<void> {

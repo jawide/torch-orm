@@ -14,6 +14,16 @@ export abstract class SQLDataAdapter implements DataAdapter {
   public async before(collection: string): Promise<void> {}
   public async after(collection: string): Promise<void> {}
 
+  private buildWhere<T>(collection: string, where?: Partial<T>) {
+    const keys = Object.keys(where ?? {}).filter(
+      (key) => this.tables[collection][key] && (where as any)[key] !== undefined
+    );
+    return {
+      clause: keys.length > 0 ? `WHERE ${keys.map((key) => `${key} = ?`).join(" AND ")}` : "",
+      params: keys.map((key) => (where as any)[key]),
+    };
+  }
+
   private buildPaging(query?: Query<any>) {
     if (query?.limit === undefined && query?.offset === undefined) {
       return { clause: "", params: [] as unknown[] };
@@ -39,27 +49,40 @@ export abstract class SQLDataAdapter implements DataAdapter {
   }
 
   public async find<T>(collection: string, query?: Query<T>): Promise<T[]> {
-    const validWhere = Object.keys(query?.where ?? {}).filter(
-      (key) => this.tables[collection][key] && ((query?.where as any) ?? [])![key] !== undefined
-    );
-    const validSort = Object.keys(query?.sort ?? {}).filter((key) => this.tables[collection][key]);
+    const where = this.buildWhere(collection, query?.where);
     const paging = this.buildPaging(query);
+    const validSort = Object.keys(query?.sort ?? {}).filter((key) => this.tables[collection][key]);
 
     try {
       await this.before(collection);
       await this.ensureTable(collection);
       return this.querySQL(
-        `SELECT * FROM ${collection} ${
-          validWhere.length > 0 ? `WHERE ${validWhere.map((key) => `${key} = ?`).join(" AND ")}` : ""
-        } ${
+        `SELECT * FROM ${collection} ${where.clause} ${
           validSort.length > 0 ? `ORDER BY ${validSort.map((key) => `${key} ${query?.sort![key]}`).join(", ")}` : ""
         } ${paging.clause}`,
-        [...validWhere.map((key) => (query?.where as any)[key]), ...paging.params]
+        [...where.params, ...paging.params]
       );
     } finally {
       await this.after(collection);
     }
   }
+
+  public async count<T>(collection: string, query?: Query<T>): Promise<number> {
+    const where = this.buildWhere(collection, query?.where);
+
+    try {
+      await this.before(collection);
+      await this.ensureTable(collection);
+      const rows = await this.querySQL<{ total: number }>(
+        `SELECT COUNT(*) AS total FROM ${collection} ${where.clause}`,
+        where.params
+      );
+      return Number(rows[0]?.total ?? 0);
+    } finally {
+      await this.after(collection);
+    }
+  }
+
   public async create<T>(collection: string, data: T): Promise<void> {
     const validData = Object.keys(data as any).filter(
       (key) => this.tables[collection][key] && (data as any)[key] !== undefined
@@ -84,46 +107,44 @@ export abstract class SQLDataAdapter implements DataAdapter {
       await this.after(collection);
     }
   }
+
   public async update<T>(collection: string, query: Query<T>, data: Partial<T>): Promise<void> {
     const validData = Object.keys(data as any).filter(
       (key) => this.tables[collection][key] && (data as any)[key] !== undefined
     );
-    const validWhere = Object.keys(query?.where ?? {}).filter(
-      (key) => this.tables[collection][key] && ((query?.where as any) ?? [])![key] !== undefined
-    );
+    const where = this.buildWhere(collection, query?.where);
+    if (!where.clause) {
+      throw new Error(`Entity update requires a where clause, use clear() to remove all`);
+    }
 
     try {
       await this.before(collection);
       await this.ensureTable(collection);
 
       await this.execSQL(
-        `UPDATE ${collection} SET ${validData.map((key) => `${key} = ?`).join(", ")} WHERE ${validWhere
-          .map((key) => `${key} = ?`)
-          .join(" AND ")}`,
-        [...validData.map((key) => (data as any)[key]), ...validWhere.map((key) => (query.where as any)[key])]
+        `UPDATE ${collection} SET ${validData.map((key) => `${key} = ?`).join(", ")} ${where.clause}`,
+        [...validData.map((key) => (data as any)[key]), ...where.params]
       );
     } finally {
       await this.after(collection);
     }
   }
+
   public async delete<T>(collection: string, query: Query<T>): Promise<void> {
-    const validWhere = Object.keys(query?.where ?? {}).filter(
-      (key) => this.tables[collection][key] && ((query?.where as any) ?? [])![key] !== undefined
-    );
+    const where = this.buildWhere(collection, query?.where);
+    if (!where.clause) {
+      throw new Error(`Entity delete requires a where clause, use clear() to remove all`);
+    }
 
     try {
       await this.before(collection);
       await this.ensureTable(collection);
-      await this.execSQL(
-        `DELETE FROM ${collection} ${
-          validWhere.length > 0 ? `WHERE ${validWhere.map((key) => `${key} = ?`).join(" AND ")}` : ""
-        }`,
-        validWhere.map((key) => (query.where as any)[key])
-      );
+      await this.execSQL(`DELETE FROM ${collection} ${where.clause}`, where.params);
     } finally {
       await this.after(collection);
     }
   }
+
   public async clear(collection: string): Promise<void> {
     try {
       await this.before(collection);

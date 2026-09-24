@@ -26,6 +26,10 @@ export class DataStore<T> {
     return this.adapter.find<T>(this.collection, query);
   }
 
+  async count(query?: Query<T>): Promise<number> {
+    return this.adapter.count<T>(this.collection, query);
+  }
+
   async create(data: T): Promise<T> {
     await this.adapter.create<T>(this.collection, data);
     return data;

@@ -133,6 +133,31 @@ export function runAdapterTests(
       });
     });
 
+    describe("count", () => {
+      beforeEach(async () => {
+        await adapter.create("users", testUser);
+        await adapter.create("users", { id: 2, name: "Jane Doe", age: 25 });
+        await adapter.create("users", { id: 3, name: "Bob Smith", age: 35 });
+      });
+
+      it("should count all entities", async () => {
+        expect(await adapter.count("users")).toBe(3);
+      });
+
+      it("should count entities matching where clause", async () => {
+        expect(await adapter.count("users", { where: { age: 30 } })).toBe(1);
+      });
+
+      it("should count zero when collection is empty", async () => {
+        await adapter.clear("users");
+        expect(await adapter.count("users")).toBe(0);
+      });
+
+      it("should ignore limit and offset", async () => {
+        expect(await adapter.count("users", { limit: 1, offset: 1 })).toBe(3);
+      });
+    });
+
     describe("update", () => {
       beforeEach(async () => {
         await adapter.create("users", testUser);
@@ -148,6 +173,11 @@ export function runAdapterTests(
         expect(
           adapter.update<TestUser>("users", { where: { id: 1 } }, { name: "test", unknownProperty: "unknown" } as any)
         ).resolves.not.toThrow();
+      });
+
+      it("should throw when updating without a where clause", async () => {
+        await expect(adapter.update<TestUser>("users", {}, { name: "Mike" })).rejects.toThrow(/where clause/);
+        expect(await adapter.find("users")).toHaveLength(1);
       });
     });
 
@@ -173,8 +203,14 @@ export function runAdapterTests(
         expect(results).toHaveLength(1);
       });
 
-      it("should safe when deleting entity with unexpected property", async () => {
-        expect(adapter.delete("users", { where: { unknownProperty: "unknown" } as any })).resolves.not.toThrow();
+      it("should delete nothing when where matches no entity", async () => {
+        await adapter.delete("users", { where: { id: 999 } });
+        expect(await adapter.find("users")).toHaveLength(2);
+      });
+
+      it("should throw when deleting without a where clause", async () => {
+        await expect(adapter.delete("users", {})).rejects.toThrow(/where clause/);
+        expect(await adapter.find("users")).toHaveLength(2);
       });
     });
 
