@@ -38,10 +38,6 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
       });
     }
 
-    if (query?.limit) {
-      result = result.slice(0, query.limit);
-    }
-
     return result;
   }
 
@@ -58,7 +54,9 @@ export abstract class KeyValueDataAdapter implements DataAdapter {
       }
     } else {
       const entities = await Promise.all(index.map((id) => this.getValue<T>(this.getKey(collection, id))));
-      return this.filterEntities(entities, query!);
+      const result = this.filterEntities(entities, query!);
+      const offset = query?.offset ?? 0;
+      return query?.limit === undefined ? result.slice(offset) : result.slice(offset, offset + query.limit);
     }
   }
 

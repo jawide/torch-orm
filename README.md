@@ -80,7 +80,7 @@ interface Query {
   where?: Record<string, any>;
   limit?: number;
   offset?: number;
-  sort?: Array<[string, "asc" | "desc"]>;
+  sort?: Record<string, "asc" | "desc">;
 }
 ```
 

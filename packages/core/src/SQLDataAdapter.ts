@@ -14,6 +14,16 @@ export abstract class SQLDataAdapter implements DataAdapter {
   public async before(collection: string): Promise<void> {}
   public async after(collection: string): Promise<void> {}
 
+  private buildPaging(query?: Query<any>) {
+    if (query?.limit === undefined && query?.offset === undefined) {
+      return { clause: "", params: [] as unknown[] };
+    }
+    if (query?.limit === undefined) {
+      return { clause: "LIMIT 9223372036854775807 OFFSET ?", params: [query?.offset] };
+    }
+    return { clause: "LIMIT ? OFFSET ?", params: [query.limit, query?.offset ?? 0] };
+  }
+
   public async ensureTable(collection: string): Promise<void> {
     if (this.ensured.has(collection)) {
       return;
@@ -33,6 +43,7 @@ export abstract class SQLDataAdapter implements DataAdapter {
       (key) => this.tables[collection][key] && ((query?.where as any) ?? [])![key] !== undefined
     );
     const validSort = Object.keys(query?.sort ?? {}).filter((key) => this.tables[collection][key]);
+    const paging = this.buildPaging(query);
 
     try {
       await this.before(collection);
@@ -42,8 +53,8 @@ export abstract class SQLDataAdapter implements DataAdapter {
           validWhere.length > 0 ? `WHERE ${validWhere.map((key) => `${key} = ?`).join(" AND ")}` : ""
         } ${
           validSort.length > 0 ? `ORDER BY ${validSort.map((key) => `${key} ${query?.sort![key]}`).join(", ")}` : ""
-        } ${query?.limit ? `LIMIT ${query.limit}` : ""}`,
-        validWhere.map((key) => (query?.where as any)[key])
+        } ${paging.clause}`,
+        [...validWhere.map((key) => (query?.where as any)[key]), ...paging.params]
       );
     } finally {
       await this.after(collection);

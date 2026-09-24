@@ -114,6 +114,16 @@ export function runAdapterTests(
         expect(results).toHaveLength(2);
       });
 
+      it("should offset results", async () => {
+        const results = await adapter.find<TestUser>("users", { sort: { age: "asc" }, offset: 1 });
+        expect(results.map((user) => user.age)).toEqual([30, 35]);
+      });
+
+      it("should combine limit and offset", async () => {
+        const results = await adapter.find<TestUser>("users", { sort: { age: "asc" }, limit: 1, offset: 1 });
+        expect(results.map((user) => user.age)).toEqual([30]);
+      });
+
       it("should safe when finding entity with unexpected property", async () => {
         expect(adapter.find("users", { where: { unknownProperty: "unknown" } })).resolves.not.toThrow();
       });
