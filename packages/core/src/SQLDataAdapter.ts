@@ -9,10 +9,15 @@ export abstract class SQLDataAdapter implements DataAdapter {
   public abstract execSQL(sql: string, params?: any[]): Promise<void>;
   public abstract querySQL<T>(sql: string, params?: any[]): Promise<T[]>;
 
+  private ensured = new Set<string>();
+
   public async before(collection: string): Promise<void> {}
   public async after(collection: string): Promise<void> {}
 
   public async ensureTable(collection: string): Promise<void> {
+    if (this.ensured.has(collection)) {
+      return;
+    }
     await this.execSQL(`
       CREATE TABLE IF NOT EXISTS ${collection} (
         ${Object.entries(this.tables[collection])
@@ -20,6 +25,7 @@ export abstract class SQLDataAdapter implements DataAdapter {
           .join(", ")}
       )
     `);
+    this.ensured.add(collection);
   }
 
   public async find<T>(collection: string, query?: Query<T>): Promise<T[]> {
@@ -55,7 +61,6 @@ export abstract class SQLDataAdapter implements DataAdapter {
       if (!id) {
         throw new Error(`Entity must have an ${this.idAttribute}`);
       }
-      await this.ensureTable(collection);
       try {
         await this.execSQL(
           `INSERT INTO ${collection} (${validData.join(", ")}) VALUES (${validData.map(() => "?").join(", ")})`,

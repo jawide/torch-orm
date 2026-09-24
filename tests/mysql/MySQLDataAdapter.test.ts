@@ -104,7 +104,7 @@ runAdapterTests(
       const [tables] = await connection.query("SHOW TABLES");
       for (const table of tables as any[]) {
         const tableName = table[Object.keys(table)[0]];
-        await connection.execute(`DROP TABLE IF EXISTS ${tableName}`);
+        await connection.execute(`DELETE FROM ${tableName}`);
       }
     } finally {
       connection.release();
